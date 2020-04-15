@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NonStdQuery.Backend.Data.Db.Queries;
@@ -22,17 +23,32 @@ namespace NonStdQuery.Backend.Data.Translation
             var attributes = query.SelectAttributes
                 .Select(translator.FriendlyToReal)
                 .ToList();
+
+            var parameters = new Dictionary<string, object>();
+            var index = 0;
+
+            string tableName;
+            string columnName;
             
             foreach (var attribute in attributes)
             {
-                builder.Append(attribute.ColumnName);
+                tableName = "@" + index++;
+                columnName = "@" + index++;
+                parameters.Add(tableName, attribute.TableName);
+                parameters.Add(columnName, attribute.ColumnName);
+
+                builder.Append(tableName);
+                builder.Append(".");
+                builder.Append(columnName);
                 builder.Append(", ");
             }
 
             builder.Remove(builder.Length - 2, 2);
-
             builder.Append("\nfrom ");
-            builder.Append(attributes.First().TableName);
+
+            tableName = "@" + index++;
+            parameters.Add(tableName, attributes.First().TableName);
+            builder.Append(tableName);
 
             // TODO: join tables
 
@@ -43,9 +59,17 @@ namespace NonStdQuery.Backend.Data.Translation
                 var orderBy = query.SortAttributes
                     .Select(translator.FriendlyToReal)
                     .ToList();
+                
                 foreach (var attribute in orderBy)
                 {
-                    builder.Append(attribute.ColumnName);
+                    tableName = "@" + index++;
+                    columnName = "@" + index++;
+                    parameters.Add(tableName, attribute.TableName);
+                    parameters.Add(columnName, attribute.ColumnName);
+
+                    builder.Append(tableName);
+                    builder.Append(".");
+                    builder.Append(columnName);
                     builder.Append(", ");
                 }
 
@@ -53,7 +77,7 @@ namespace NonStdQuery.Backend.Data.Translation
             }
             
             builder.Append(";");
-            return new DbQuery(builder.ToString());
+            return new DbQuery(builder.ToString(), parameters);
         }
     }
 }
