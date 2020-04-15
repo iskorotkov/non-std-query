@@ -1,5 +1,5 @@
 ﻿using System;
-using NonStdQuery.Backend.Data.Settings;
+using NonStdQuery.Backend.Data.Configurations;
 using Npgsql;
 
 namespace NonStdQuery.Backend.Data.Db

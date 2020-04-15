@@ -20,15 +20,15 @@ namespace NonStdQuery.Backend.Data.Translation
                 where friendly_name = @FriendlyName",
                 new { FriendlyName = attribute });
 
-             var result = query.First();
-             var type = connection.Query<string>(@"
+            var result = query.First();
+            var type = connection.Query<string>(@"
                  select data_type
                  from columns
                  where table_name = @TableName and column_name = @ColumnName",
-                 new { TableName = result.TableName, ColumnName = result.ColumnName });
+                new { TableName = result.TableName, ColumnName = result.ColumnName });
 
-             result.Type = _typeTranslator.StringToType(type.First());
-             return result;
+            result.Type = _typeTranslator.StringToType(type.First());
+            return result;
         }
 
         public string RealToFriendly(DbAttribute attribute)

@@ -1,4 +1,4 @@
-﻿namespace NonStdQuery.Backend.Data.Settings
+﻿namespace NonStdQuery.Backend.Data.Configurations
 {
     public class Connection
     {
