@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using NonStdQuery.Backend.Data.Db;
@@ -23,6 +22,10 @@ namespace NonStdQuery.Backend.Data.JoinResolving
                 var joins = GetJoinsForTable(table).ToList();
                 foreach (var joinableTable in tables)
                 {
+                    if (joinableTable == table)
+                    {
+                        continue;
+                    }
                     var join = joins.FirstOrDefault(x => x.ForeignTable == joinableTable);
                     if (join != null)
                     {
