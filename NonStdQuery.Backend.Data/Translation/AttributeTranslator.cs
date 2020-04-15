@@ -12,22 +12,30 @@ namespace NonStdQuery.Backend.Data.Translation
 
         public DbAttribute FriendlyToReal(string attribute)
         {
-            using var connection = _factory.OpenMetadataDbConnection();
-            var query = connection.Query<DbAttribute>(@"
-                select table_name as TableName,
-                       field_name as FieldName
-                from fields
-                where friendly_name = @FriendlyName",
-                new { FriendlyName = attribute });
+            DbAttribute result;
+            using (var connection = _factory.OpenMetadataDbConnection())
+            {
+                var query = connection.Query<DbAttribute>(@"
+                    select table_name as TableName,
+                           field_name as ColumnName
+                    from fields
+                    where friendly_name = @FriendlyName",
+                    new { FriendlyName = attribute });
 
-            var result = query.First();
-            var type = connection.Query<string>(@"
-                 select data_type
-                 from columns
-                 where table_name = @TableName and column_name = @ColumnName",
-                new { TableName = result.TableName, ColumnName = result.ColumnName });
+                result = query.First();
+            }
 
-            result.Type = _typeTranslator.StringToType(type.First());
+            using (var connection = _factory.OpenSubjectDbConnection())
+            {
+                var type = connection.Query<string>(@"
+                    select data_type
+                    from information_schema.columns
+                    where table_name = @TableName and column_name = @ColumnName",
+                    new { TableName = result.TableName, ColumnName = result.ColumnName });
+
+                result.Type = _typeTranslator.StringToType(type.First());
+            }
+
             return result;
         }
 
