@@ -45,7 +45,7 @@ namespace NonStdQuery.Backend.Data.Translation
             var query = connection.Query<string>(@"
                 select friendly_name
                 from fields
-                where table_name = @TableName, field_name = @FieldName",
+                where table_name = @TableName and field_name = @FieldName",
                 new { attribute.TableName, FieldName = attribute.ColumnName });
 
             return query.First();

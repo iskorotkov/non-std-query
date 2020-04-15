@@ -20,5 +20,19 @@ namespace NonStdQuery.Backend.Data.Tests
             var actual = translator.FriendlyToReal("Название империи");
             Assert.Equal(expected, actual);
         }
+
+        [Fact]
+        public void RealToFriendly()
+        {
+            var translator = new AttributeTranslator();
+            var attribute = new DbAttribute
+            {
+                TableName = "empires",
+                ColumnName = "power",
+                Type = DbType.Numeric
+            };
+            
+            Assert.Equal("Мощь империи", translator.RealToFriendly(attribute));
+        }
     }
 }
