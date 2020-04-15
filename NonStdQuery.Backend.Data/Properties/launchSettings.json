@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "NonStdQuery.Backend.Data": {
+      "commandName": "Project"
+    }
+  }
+}

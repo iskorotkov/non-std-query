@@ -1,0 +1,10 @@
+﻿namespace NonStdQuery.Backend.Data.Queries
+{
+    public class Condition
+    {
+        public string AttributeName { get; set; }
+        public Operation Operation { get; set; }
+        public string Value { get; set; }
+        public LinkMethod Link { get; set; }
+    }
+}

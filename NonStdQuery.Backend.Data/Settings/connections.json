@@ -1,0 +1,18 @@
+﻿{
+  "Connections": [
+    {
+      "Subject": {
+        "Host": "localhost",
+        "Database": "spaceships",
+        "Port": 5432
+      }
+    },
+    {
+      "Metadata": {
+        "Host": "localhost",
+        "Database": "spaceships",
+        "Port": 5432
+      }
+    }
+  ] 
+}
