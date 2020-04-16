@@ -1,10 +1,13 @@
 ﻿@page "/"
+
 @inject HttpClient HttpClient
 @inject CurrentSelectionService CurrentSelection
+@inject FieldsRegistry FieldsRegistry
+
 @using NonStdQuery.Backend.Representation.Data
 @using NonStdQuery.Client.Services
 
-@if (_fields != null)
+@if (FieldsRegistry.Fields != null)
 {
     <div class="row">
         <div class="flex-column p-2">
@@ -18,7 +21,7 @@
 
             <table>
                 <tbody>
-                    @foreach (var field in _fields
+                    @foreach (var field in FieldsRegistry.Fields
                         .Where(f => f.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)))
                     {
                         var f = field;
@@ -54,12 +57,11 @@
 
 @code
 {
-    private List<FieldInfo> _fields;
     private string _search = "";
 
     protected override async Task OnInitializedAsync()
     {
-        _fields = await HttpClient.GetJsonAsync<List<FieldInfo>>("api/fields");
+        await FieldsRegistry.Fetch();
     }
 
     private void ItemSelectionChanged(FieldInfo field, ChangeEventArgs changeEventArgs)
@@ -80,7 +82,7 @@
 
     private void SelectAll()
     {
-        foreach (var field in _fields)
+        foreach (var field in FieldsRegistry.Fields)
         {
             if (!CurrentSelection.Query.SelectAttributes.Contains(field.Name))
             {

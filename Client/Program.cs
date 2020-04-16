@@ -16,6 +16,7 @@ namespace NonStdQuery.Client
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddScoped<CurrentSelectionService>();
+            builder.Services.AddScoped<FieldsRegistry>();
             
             builder.Services.AddBaseAddressHttpClient();
 
