@@ -16,7 +16,7 @@
                 var cached = condition;
                 <tr>
                     <td>
-                        <select @bind="@condition.AttributeName">
+                        <select @bind="@cached.AttributeName">
                             @foreach (var field in FieldsRegistry.Fields)
                             {
                                 <option value="@field.Name">@field.Name</option>
@@ -38,37 +38,33 @@
                     <td>
                         @{
                             var attribute = FieldsRegistry.Fields
-                                .First(f => f.Name == condition.AttributeName);
+                                .Find(f => f.Name == cached.AttributeName);
                         }
 
                         @switch (attribute.Type)
                         {
                             case DbType.Bool:
                                 <input type="checkbox"
-                                       value="@((bool) condition.Value)"
-                                       @oninput="@(args => ValueChanged(args, condition))"/>
+                                       @bind="@condition.BoolValue"/>
                                 break;
                             case DbType.Numeric:
                                 <input type="number"
-                                       value="@((int) condition.Value)"
-                                       @oninput="@(args => ValueChanged(args, condition))"/>
+                                       @bind="@condition.IntValue"/>
                                 break;
                             case DbType.String:
                                 <input type="text"
-                                       value="@((string) condition.Value)"
-                                       @oninput="@(args => ValueChanged(args, condition))"/>
+                                       @bind="@condition.StringValue"/>
                                 break;
                             case DbType.DateTime:
                                 <input type="date"
-                                       value="@((DateTime) condition.Value)"
-                                       @oninput="@(args => ValueChanged(args, condition))"/>
+                                       @bind="@condition.DateTimeValue"/>
                                 break;
                             default:
                                 <span>Type isn't supported</span>
                                 break;
                         }
                     </td>
-
+                    
                     <td>
                         <select @bind="@condition.Link">
                             <option value="@LinkMethod.None"></option>
@@ -98,17 +94,12 @@
         await FieldsRegistry.Fetch();
     }
 
-    private void ValueChanged(ChangeEventArgs args, Condition condition)
-    {
-        condition.Value = args.Value;
-    }
-
     private void CreateCondition()
     {
+        var attribute = FieldsRegistry.Fields.ElementAt(0);
         var cond = new Condition
         {
-            AttributeName = FieldsRegistry.Fields.ElementAt(0)?.Name
-                            ?? throw new ApplicationException("Attribute or its name is null."),
+            AttributeName = attribute.Name,
             Operation = Operation.Equal
         };
         CurrentSelection.Query.Conditions.Add(cond);
