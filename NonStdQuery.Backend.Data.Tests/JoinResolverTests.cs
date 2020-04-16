@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using NonStdQuery.Backend.Data.JoinResolving;
 using Xunit;
 
@@ -18,7 +19,9 @@ namespace NonStdQuery.Backend.Data.Tests
         public void TwoTables()
         {
             var resolver = new JoinResolver();
-            var result = resolver.Resolve(new List<string> { "empires", "government_types" });
+            var result = resolver.Resolve(
+                new List<string> { "empires", "government_types" })
+                .ToList();
             Assert.Single(result);
 
             var expected = new JoinInfo
@@ -36,7 +39,8 @@ namespace NonStdQuery.Backend.Data.Tests
         {
             var resolver = new JoinResolver();
             var result = resolver.Resolve(
-                new List<string> { "empires", "government_types", "planets" });
+                new List<string> { "empires", "government_types", "planets" })
+                .ToList();
             
             Assert.Equal(2, result.Count);
 
@@ -57,6 +61,24 @@ namespace NonStdQuery.Backend.Data.Tests
             
             Assert.Equal(first, result[0]);
             Assert.Equal(second, result[1]);
+        }
+
+        [Fact]
+        public void IndirectJoins()
+        {
+            var resolver = new JoinResolver();
+            var joins = resolver.Resolve(new List<string> { "empires", "alliances" }).ToList();
+            Assert.Equal(2, joins.Count);
+            
+            Assert.Equal("empires", joins[0].ThisTable);
+            Assert.Equal("id", joins[0].ThisColumn);
+            Assert.Equal("alliances_entries", joins[0].ForeignTable);
+            Assert.Equal("empire_id", joins[0].ForeignColumn);
+
+            Assert.Equal("alliances_entries", joins[1].ThisTable);
+            Assert.Equal("alliance_id", joins[1].ThisColumn);
+            Assert.Equal("alliances", joins[1].ForeignTable);
+            Assert.Equal("id", joins[1].ForeignColumn);
         }
     }
 }

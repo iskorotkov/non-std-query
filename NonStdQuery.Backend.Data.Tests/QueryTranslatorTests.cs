@@ -35,8 +35,11 @@ namespace NonStdQuery.Backend.Data.Tests
             };
 
             var dbQuery = translator.Translate(query);
-            const string sql = "select @0.@1, @2.@3\nfrom @4\njoin @5 on @5.@6 = @7.@8;";
+            const string sql = "select @0.@1, @2.@3\nfrom @4\njoin @5 on @5.@6 = @7.@8\njoin @9 on @9.@10 = @11.@12;";
             Assert.Equal(sql, dbQuery.Sql);
+            Assert.Equal("empires", dbQuery.Parameters["@4"]);
+            Assert.Equal("alliances_entries", dbQuery.Parameters["@5"]);
+            Assert.Equal("alliances", dbQuery.Parameters["@9"]);
         }
 
         [Fact]
