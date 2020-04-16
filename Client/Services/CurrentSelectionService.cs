@@ -4,6 +4,6 @@ namespace NonStdQuery.Client.Services
 {
     public class CurrentSelectionService
     {
-        public Query Query { get; set; }
+        public Query Query { get; } = new Query();
     }
 }

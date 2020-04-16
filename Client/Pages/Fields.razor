@@ -6,22 +6,50 @@
 
 @if (_fields != null)
 {
-    <input type="text" @bind="@_search" @bind:event="oninput"/>
+    <div class="row">
+        <div class="flex-column p-2">
+            <div class="row">
+                <input type="text" @bind="@_search" @bind:event="oninput"/>
 
-    <table>
-        <tbody>
-            @foreach (var field in _fields
-                .Where(f => f.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)))
-            {
-                <tr>
-                    <td>
-                        <input type="checkbox" @onchange="@((e) => ItemSelectionChanged(field, e))"/>
-                    </td>
-                    <td>@field.Name</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+                <button class="btn" @onclick="@ClearSearch">
+                    <i class="oi oi-x"></i>
+                </button>
+            </div>
+
+            <table>
+                <tbody>
+                    @foreach (var field in _fields
+                        .Where(f => f.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var f = field;
+                        <tr>
+                            <td>
+                                <input type="checkbox"
+                                       checked="@CurrentSelection.Query.SelectAttributes.Contains(field.Name)"
+                                       @onchange="@(e => ItemSelectionChanged(f, e))"/>
+                            </td>
+                            <td>@field.Name</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="row">
+                <button class="btn btn-outline-primary p-2" @onclick="@SelectAll">Select all</button>
+                <button class="btn btn-outline-primary p-2" @onclick="@DeselectAll">Deselect all</button>
+            </div>
+        </div>
+
+        <div class="flex-column p-2">
+            <span>Selected items:</span>
+            <ul>
+                @foreach (var item in CurrentSelection.Query.SelectAttributes)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+        </div>
+    </div>
 }
 
 @code
@@ -39,11 +67,37 @@
         var enabled = (bool) changeEventArgs.Value;
         if (enabled)
         {
-            CurrentSelection.Query.SelectAttributes.Add(field.Name);
+            if (!CurrentSelection.Query.SelectAttributes.Contains(field.Name))
+            {
+                CurrentSelection.Query.SelectAttributes.Add(field.Name);
+            }
         }
-        else
+        else if (CurrentSelection.Query.SelectAttributes.Contains(field.Name))
         {
             CurrentSelection.Query.SelectAttributes.Remove(field.Name);
         }
+    }
+
+    private void SelectAll()
+    {
+        foreach (var field in _fields)
+        {
+            if (!CurrentSelection.Query.SelectAttributes.Contains(field.Name))
+            {
+                CurrentSelection.Query.SelectAttributes.Add(field.Name);
+            }
+        }
+        StateHasChanged();
+    }
+
+    private void DeselectAll()
+    {
+        CurrentSelection.Query.SelectAttributes.Clear();
+        StateHasChanged();
+    }
+
+    private void ClearSearch()
+    {
+        _search = "";
     }
 }
