@@ -14,5 +14,19 @@
   <ItemGroup>
     <ProjectReference Include="..\Shared\NonStdQuery.Shared.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Update="Pages\Fields.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="Pages\Conditions.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="Pages\Order.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+    <Content Update="Pages\Results.razor">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+    </Content>
+  </ItemGroup>
 
 </Project>
