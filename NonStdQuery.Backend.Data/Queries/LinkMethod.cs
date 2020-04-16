@@ -2,6 +2,7 @@
 {
     public enum LinkMethod
     {
+        None,
         And,
         Or
     }

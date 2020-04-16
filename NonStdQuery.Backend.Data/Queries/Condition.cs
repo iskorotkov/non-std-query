@@ -4,7 +4,7 @@
     {
         public string AttributeName { get; set; }
         public Operation Operation { get; set; }
-        public string Value { get; set; }
+        public object Value { get; set; }
         public LinkMethod Link { get; set; }
     }
 }
