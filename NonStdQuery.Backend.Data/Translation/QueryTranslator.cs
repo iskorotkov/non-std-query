@@ -75,7 +75,7 @@ namespace NonStdQuery.Backend.Data.Translation
                 builder.Append("\norder by ");
 
                 var orderBy = sortAttributes
-                    .Select(x => new { x.Ascending, Attribute = translator.FriendlyToReal(x.AttributeName) })
+                    .Select(x => new { x.Direction, Attribute = translator.FriendlyToReal(x.AttributeName) })
                     .ToList();
 
                 foreach (var attribute in orderBy)
@@ -85,8 +85,13 @@ namespace NonStdQuery.Backend.Data.Translation
                     builder.Append("\".\"");
                     builder.Append(attribute.Attribute.ColumnName);
                     builder.Append("\"");
-
-                    builder.Append(attribute.Ascending ? " asc" : " desc");
+                    
+                    builder.Append(attribute.Direction switch
+                    {
+                        SortDirection.Ascending => " asc",
+                        SortDirection.Descending => " desc",
+                        _ => throw new NotImplementedException()
+                    });
 
                     builder.Append(", ");
                 }

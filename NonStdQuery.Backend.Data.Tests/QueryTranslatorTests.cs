@@ -68,12 +68,12 @@ namespace NonStdQuery.Backend.Data.Tests
                     new SortAttribute
                     {
                         AttributeName = "Название империи",
-                        Ascending = true
+                        Direction = SortDirection.Ascending
                     },
                     new SortAttribute
                     {
                         AttributeName = "Мощь империи",
-                        Ascending = false
+                        Direction = SortDirection.Descending
                     }
                 }
             };
