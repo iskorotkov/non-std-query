@@ -24,18 +24,16 @@ namespace NonStdQuery.Backend.Data.Translation
                 .ToList();
 
             var parameters = new Dictionary<string, object>();
-            var index = BuildSelectList(builder, parameters, 0, attributes);
-            index = BuildFromPart(builder, parameters, index, attributes);
-            index = BuildJoinList(builder, parameters, index, attributes);
-            // ReSharper disable once RedundantAssignment
-            index = BuildOrderByList(builder, parameters, index, query);
-            
+            BuildSelectList(builder, attributes);
+            BuildFromPart(builder, attributes);
+            BuildJoinList(builder, attributes);
+            BuildOrderByList(builder, query.SortAttributes);
             builder.Append(";");
+            
             return new DbQuery(builder.ToString(), parameters);
         }
 
-        private static int BuildJoinList(StringBuilder builder, Dictionary<string, object> parameters,
-            int index, List<DbAttribute> attributes)
+        private static void BuildJoinList(StringBuilder builder, List<DbAttribute> attributes)
         {
             var tables = attributes
                 .Select(a => a.TableName)
@@ -47,93 +45,66 @@ namespace NonStdQuery.Backend.Data.Translation
             foreach (var @join in joins)
             {
                 builder.Append("\njoin ");
-                
-                var foreignTable = "@" + index++;
-                var foreignColumn = "@" + index++;
-                var table = "@" + index++;
-                var column = "@" + index++;
-                
-                parameters.Add(foreignTable, join.ForeignTable);
-                parameters.Add(foreignColumn, join.ForeignColumn);
-                parameters.Add(table, join.ThisTable);
-                parameters.Add(column, join.ThisColumn);
 
-                builder.Append(foreignTable);
-                builder.Append(" on ");
-                builder.Append(foreignTable);
-                builder.Append(".");
-                builder.Append(foreignColumn);
-                builder.Append(" = ");
-                builder.Append(table);
-                builder.Append(".");
-                builder.Append(column);
+                builder.Append("\"");
+                builder.Append(join.ForeignTable);
+                builder.Append("\" on \"");
+                builder.Append(join.ForeignTable);
+                builder.Append("\".\"");
+                builder.Append(join.ForeignColumn);
+                builder.Append("\" = \"");
+                builder.Append(join.ThisTable);
+                builder.Append("\".\"");
+                builder.Append(join.ThisColumn);
+                builder.Append("\"");
             }
-
-            return index;
         }
 
-        private static int BuildFromPart(StringBuilder builder,
-            Dictionary<string, object> parameters, int index, List<DbAttribute> attributes)
+        private static void BuildFromPart(StringBuilder builder, List<DbAttribute> attributes)
         {
-            builder.Append("\nfrom ");
-            var tableName = "@" + index++;
-            parameters.Add(tableName, attributes.First().TableName);
-            builder.Append(tableName);
-            return index;
+            builder.Append("\nfrom \"");
+            builder.Append(attributes[0].TableName);
+            builder.Append("\"");
         }
 
-        private static int BuildOrderByList(StringBuilder builder,
-            Dictionary<string, object> parameters, int index,
-            Query query)
+        private static void BuildOrderByList(StringBuilder builder, List<string> sortAttributes)
         {
-            if (query.SortAttributes?.Count > 0)
+            if (sortAttributes?.Count > 0)
             {
                 var translator = new AttributeTranslator();
-                builder.Append("\norder by");
+                builder.Append("\norder by ");
 
-                var orderBy = query.SortAttributes
+                var orderBy = sortAttributes
                     .Select(translator.FriendlyToReal)
                     .ToList();
 
                 foreach (var attribute in orderBy)
                 {
-                    var tableName = "@" + index++;
-                    var columnName = "@" + index++;
-                    parameters.Add(tableName, attribute.TableName);
-                    parameters.Add(columnName, attribute.ColumnName);
-
-                    builder.Append(tableName);
-                    builder.Append(".");
-                    builder.Append(columnName);
-                    builder.Append(", ");
+                    builder.Append("\"");
+                    builder.Append(attribute.TableName);
+                    builder.Append("\".\"");
+                    builder.Append(attribute.ColumnName);
+                    builder.Append("\", ");
                 }
 
                 builder.Remove(builder.Length - 2, 2);
             }
-
-            return index;
         }
 
-        private static int BuildSelectList(StringBuilder builder,
-            Dictionary<string, object> parameters, int index, List<DbAttribute> attributes)
+        private static void BuildSelectList(StringBuilder builder, List<DbAttribute> attributes)
         {
             builder.Append("select ");
 
             foreach (var attribute in attributes)
             {
-                var tableName = "@" + index++;
-                var columnName = "@" + index++;
-                parameters.Add(tableName, attribute.TableName);
-                parameters.Add(columnName, attribute.ColumnName);
-
-                builder.Append(tableName);
-                builder.Append(".");
-                builder.Append(columnName);
-                builder.Append(", ");
+                builder.Append("\"");
+                builder.Append(attribute.TableName);
+                builder.Append("\".\"");
+                builder.Append(attribute.ColumnName);
+                builder.Append("\", ");
             }
 
             builder.Remove(builder.Length - 2, 2);
-            return index;
         }
     }
 }
