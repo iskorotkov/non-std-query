@@ -1,6 +1,47 @@
 ﻿@page "/conditions"
+@using NonStdQuery.Client.Services
+@using NonStdQuery.Backend.Representation.Data
+@using NonStdQuery.Backend.Data.Queries
+
+@inject FieldsRegistry FieldsRegistry
+
+@if (FieldsRegistry.Fields != null)
+{
+    <select @bind="@_selectedFieldIndex">
+        @for (var i = 0; i < FieldsRegistry.Fields.Count; i++)
+        {
+            var field = FieldsRegistry.Fields[i];
+            <option value="@i">@field.Name</option>
+        }
+    </select>
+
+    <select @bind="@_selectedOperation">
+        <option value="@Operation.Equal">=</option>
+        <option value="@Operation.NotEqual">!=</option>
+        <option value="@Operation.Less">&lt;</option>
+        <option value="@Operation.More">&gt;</option>
+        <option value="@Operation.LessEqual">&le;</option>
+        <option value="@Operation.MoreEqual">&ge;</option>
+    </select>
+
+    <select @bind="@_selectedLink">
+        <option value="@LinkMethod.None"></option>
+        <option value="@LinkMethod.And">and</option>
+        <option value="@LinkMethod.Or">or</option>
+    </select>
+}
 
 @code
 {
+    private int _selectedFieldIndex;
+    private FieldInfo SelectedField => FieldsRegistry.Fields[_selectedFieldIndex];
 
+    private Operation _selectedOperation;
+
+    private LinkMethod _selectedLink;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FieldsRegistry.Fetch();
+    }
 }
