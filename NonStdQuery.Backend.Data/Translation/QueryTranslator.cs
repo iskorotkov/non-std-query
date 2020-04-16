@@ -18,19 +18,24 @@ namespace NonStdQuery.Backend.Data.Translation
             }
 
             var builder = new StringBuilder();
-            var translator = new AttributeTranslator();
+            var attributeTranslator = new AttributeTranslator();
             var attributes = query.SelectAttributes
-                .Select(translator.FriendlyToReal)
+                .Select(attributeTranslator.FriendlyToReal)
                 .ToList();
 
-            var parameters = new Dictionary<string, object>();
             BuildSelectList(builder, attributes);
             BuildFromPart(builder, attributes);
             BuildJoinList(builder, attributes);
+
+            builder.Append("\nwhere ");
+            
+            var conditionTranslator = new ConditionTranslator(builder);
+            conditionTranslator.Translate(query.Conditions);
+            
             BuildOrderByList(builder, query.SortAttributes);
             builder.Append(";");
 
-            return new DbQuery(builder.ToString(), parameters);
+            return new DbQuery(builder.ToString(), conditionTranslator.Parameters);
         }
 
         private static void BuildJoinList(StringBuilder builder, List<DbAttribute> attributes)

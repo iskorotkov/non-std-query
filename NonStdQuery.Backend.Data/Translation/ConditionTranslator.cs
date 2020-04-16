@@ -24,6 +24,14 @@ namespace NonStdQuery.Backend.Data.Translation
             Parameters = parameters ?? new Dictionary<string, object>();
         }
 
+        public void Translate(IEnumerable<Condition> conditions)
+        {
+            foreach (var condition in conditions)
+            {
+                Translate(condition);
+            }
+        }
+
         public void Translate(Condition condition)
         {
             var attribute = _attributeTranslator.FriendlyToReal(condition.AttributeName);
@@ -39,7 +47,7 @@ namespace NonStdQuery.Backend.Data.Translation
             _linkTranslator.Translate(condition.Link);
         }
 
-        public void TranslateConstant(Condition condition)
+        private void TranslateConstant(Condition condition)
         {
             var name = "@" + Index++;
             Parameters.Add(name, condition.Value);
