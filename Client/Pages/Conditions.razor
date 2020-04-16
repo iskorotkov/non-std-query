@@ -2,6 +2,7 @@
 @using NonStdQuery.Client.Services
 @using NonStdQuery.Backend.Data.Queries
 @using NonStdQuery.Backend.Data.Db.Queries
+@using NonStdQuery.Client.Data
 
 @inject FieldsRegistry FieldsRegistry
 @inject CurrentSelection CurrentSelection
@@ -11,12 +12,13 @@
     <table>
         <tbody>
 
-            @foreach (var condition in CurrentSelection.Query.Conditions)
+            @foreach (var condition in CurrentSelection.Query.Conditions
+                .Select(x => new ConditionWrapper(x)))
             {
                 var cached = condition;
                 <tr>
                     <td>
-                        <select @bind="@cached.AttributeName">
+                        <select @bind="@cached.Condition.AttributeName">
                             @foreach (var field in FieldsRegistry.Fields)
                             {
                                 <option value="@field.Name">@field.Name</option>
@@ -25,7 +27,7 @@
                     </td>
 
                     <td>
-                        <select @bind="@condition.Operation">
+                        <select @bind="@condition.Condition.Operation">
                             <option value="@Operation.Equal">=</option>
                             <option value="@Operation.NotEqual">!=</option>
                             <option value="@Operation.Less">&lt;</option>
@@ -38,7 +40,7 @@
                     <td>
                         @{
                             var attribute = FieldsRegistry.Fields
-                                .Find(f => f.Name == cached.AttributeName);
+                                .Find(f => f.Name == cached.Condition.AttributeName);
                         }
 
                         @switch (attribute.Type)
@@ -66,7 +68,7 @@
                     </td>
                     
                     <td>
-                        <select @bind="@condition.Link">
+                        <select @bind="@condition.Condition.Link">
                             <option value="@LinkMethod.None"></option>
                             <option value="@LinkMethod.And">and</option>
                             <option value="@LinkMethod.Or">or</option>
@@ -75,7 +77,10 @@
                     </td>
 
                     <td>
-                        <button class="btn btn-outline-danger" @onclick="@(args => RemoveCondition(cached))">Remove</button>
+                        <button class="btn btn-outline-danger"
+                                @onclick="@(args => RemoveCondition(cached.Condition))">
+                            Remove
+                        </button>
                     </td>
                 </tr>
             }
