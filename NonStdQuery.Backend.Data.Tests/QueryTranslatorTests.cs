@@ -63,13 +63,25 @@ namespace NonStdQuery.Backend.Data.Tests
             var query = new Query
             {
                 SelectAttributes = new List<string> { "Название империи", "Название планеты" },
-                SortAttributes = new List<string> { "Название империи", "Мощь империи" }
+                SortAttributes = new List<SortAttribute>
+                {
+                    new SortAttribute
+                    {
+                        AttributeName = "Название империи",
+                        Ascending = true
+                    },
+                    new SortAttribute
+                    {
+                        AttributeName = "Мощь империи",
+                        Ascending = false
+                    }
+                }
             };
             var dbQuery = translator.Translate(query);
             var sql = "select \"empires\".\"name\", \"planets\".\"name\"\n" +
                       "from \"empires\"\n" +
                       "join \"planets\" on \"planets\".\"empire_id\" = \"empires\".\"id\"\n" +
-                      "order by \"empires\".\"name\", \"empires\".\"power\";";
+                      "order by \"empires\".\"name\" asc, \"empires\".\"power\" desc;";
             Assert.Equal(sql, dbQuery.Sql);
         }
     }

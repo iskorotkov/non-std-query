@@ -6,6 +6,6 @@ namespace NonStdQuery.Backend.Data.Queries
     {
         public List<string> SelectAttributes { get; set; } = new List<string>();
         public List<Condition> Conditions { get; set; } = new List<Condition>();
-        public List<string> SortAttributes { get; set; } = new List<string>();
+        public List<SortAttribute> SortAttributes { get; set; } = new List<SortAttribute>();
     }
 }

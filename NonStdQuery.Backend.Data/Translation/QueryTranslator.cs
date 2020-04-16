@@ -16,7 +16,7 @@ namespace NonStdQuery.Backend.Data.Translation
             {
                 throw new ArgumentException();
             }
-            
+
             var builder = new StringBuilder();
             var translator = new AttributeTranslator();
             var attributes = query.SelectAttributes
@@ -29,7 +29,7 @@ namespace NonStdQuery.Backend.Data.Translation
             BuildJoinList(builder, attributes);
             BuildOrderByList(builder, query.SortAttributes);
             builder.Append(";");
-            
+
             return new DbQuery(builder.ToString(), parameters);
         }
 
@@ -67,7 +67,7 @@ namespace NonStdQuery.Backend.Data.Translation
             builder.Append("\"");
         }
 
-        private static void BuildOrderByList(StringBuilder builder, List<string> sortAttributes)
+        private static void BuildOrderByList(StringBuilder builder, List<SortAttribute> sortAttributes)
         {
             if (sortAttributes?.Count > 0)
             {
@@ -75,16 +75,20 @@ namespace NonStdQuery.Backend.Data.Translation
                 builder.Append("\norder by ");
 
                 var orderBy = sortAttributes
-                    .Select(translator.FriendlyToReal)
+                    .Select(x => new { x.Ascending, Attribute = translator.FriendlyToReal(x.AttributeName) })
                     .ToList();
 
                 foreach (var attribute in orderBy)
                 {
                     builder.Append("\"");
-                    builder.Append(attribute.TableName);
+                    builder.Append(attribute.Attribute.TableName);
                     builder.Append("\".\"");
-                    builder.Append(attribute.ColumnName);
-                    builder.Append("\", ");
+                    builder.Append(attribute.Attribute.ColumnName);
+                    builder.Append("\"");
+
+                    builder.Append(attribute.Ascending ? " asc" : " desc");
+
+                    builder.Append(", ");
                 }
 
                 builder.Remove(builder.Length - 2, 2);
