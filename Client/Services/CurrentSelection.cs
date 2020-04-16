@@ -2,7 +2,7 @@
 
 namespace NonStdQuery.Client.Services
 {
-    public class CurrentSelectionService
+    public class CurrentSelection
     {
         public Query Query { get; } = new Query();
     }

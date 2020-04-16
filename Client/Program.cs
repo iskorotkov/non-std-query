@@ -15,7 +15,7 @@ namespace NonStdQuery.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
-            builder.Services.AddScoped<CurrentSelectionService>();
+            builder.Services.AddScoped<CurrentSelection>();
             builder.Services.AddScoped<FieldsRegistry>();
             
             builder.Services.AddBaseAddressHttpClient();

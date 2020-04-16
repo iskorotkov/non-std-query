@@ -1,79 +1,125 @@
 ﻿@page "/conditions"
 @using NonStdQuery.Client.Services
-@using NonStdQuery.Backend.Representation.Data
 @using NonStdQuery.Backend.Data.Queries
 @using NonStdQuery.Backend.Data.Db.Queries
 
 @inject FieldsRegistry FieldsRegistry
+@inject CurrentSelection CurrentSelection
 
 @if (FieldsRegistry.Fields != null)
 {
-    <select @bind="@_selectedFieldIndex">
-        @for (var i = 0; i < FieldsRegistry.Fields.Count; i++)
-        {
-            var field = FieldsRegistry.Fields[i];
-            <option value="@i">@field.Name</option>
-        }
-    </select>
+    <table>
+        <tbody>
 
-    <select @bind="@_selectedOperation">
-        <option value="@Operation.Equal">=</option>
-        <option value="@Operation.NotEqual">!=</option>
-        <option value="@Operation.Less">&lt;</option>
-        <option value="@Operation.More">&gt;</option>
-        <option value="@Operation.LessEqual">&le;</option>
-        <option value="@Operation.MoreEqual">&ge;</option>
-    </select>
+            @foreach (var condition in CurrentSelection.Query.Conditions)
+            {
+                var cached = condition;
+                <tr>
+                    <td>
+                        <select @bind="@condition.AttributeName">
+                            @foreach (var field in FieldsRegistry.Fields)
+                            {
+                                <option value="@field.Name">@field.Name</option>
+                            }
+                        </select>
+                    </td>
 
-    @switch (SelectedField.Type)
-    {
-        case DbType.Bool:
-            <input type="checkbox" @oninput="@(args => ValueChanged(args))"/>
-            break;
-        case DbType.Numeric:
-            <input type="number" @oninput="@(args => ValueChanged(args))"/>
-            break;
-        case DbType.String:
-            <input type="text" @oninput="@(args => ValueChanged(args))"/>
-            break;
-        case DbType.DateTime:
-            <input type="date" @oninput="@(args => ValueChanged(args))"/>
-            break;
-        default:
-            <span>Type isn't supported</span>
-            break;
-    }
+                    <td>
+                        <select @bind="@condition.Operation">
+                            <option value="@Operation.Equal">=</option>
+                            <option value="@Operation.NotEqual">!=</option>
+                            <option value="@Operation.Less">&lt;</option>
+                            <option value="@Operation.More">&gt;</option>
+                            <option value="@Operation.LessEqual">&le;</option>
+                            <option value="@Operation.MoreEqual">&ge;</option>
+                        </select>
+                    </td>
 
-    <select @bind="@_selectedLink">
-        <option value="@LinkMethod.None"></option>
-        <option value="@LinkMethod.And">and</option>
-        <option value="@LinkMethod.Or">or</option>
-    </select>
-}
+                    <td>
+                        @{
+                            var attribute = FieldsRegistry.Fields.First(f => f.Name == condition.AttributeName);
+                        }
 
-@if (_value != null)
-{
-    <span>@_value</span>
+                        @switch (attribute.Type)
+                        {
+                            case DbType.Bool:
+                                <input type="checkbox"
+                                       value="@((bool) condition.Value)"
+                                       @oninput="@(args => ValueChanged(args, condition))"/>
+                                break;
+                            case DbType.Numeric:
+                                <input type="number"
+                                       value="@((int) condition.Value)"
+                                       @oninput="@(args => ValueChanged(args, condition))"/>
+                                break;
+                            case DbType.String:
+                                <input type="text"
+                                       value="@((string) condition.Value)"
+                                       @oninput="@(args => ValueChanged(args, condition))"/>
+                                break;
+                            case DbType.DateTime:
+                                <input type="date"
+                                       value="@((DateTime) condition.Value)"
+                                       @oninput="@(args => ValueChanged(args, condition))"/>
+                                break;
+                            default:
+                                <span>Type isn't supported</span>
+                                break;
+                        }
+                    </td>
+
+                    <td>
+                        <select @bind="@condition.Link">
+                            <option value="@LinkMethod.None"></option>
+                            <option value="@LinkMethod.And">and</option>
+                            <option value="@LinkMethod.Or">or</option>
+                        </select>
+
+                    </td>
+
+                    <td>
+                        <button class="btn btn-outline-danger" @onclick="@(args => RemoveCondition(cached))">Remove</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="row">
+        <button class="btn btn-outline-success" @onclick="@CreateCondition">Add condition</button>
+    </div>
 }
 
 @code
 {
-    private int _selectedFieldIndex;
-    private FieldInfo SelectedField => FieldsRegistry.Fields[_selectedFieldIndex];
-
-    private Operation _selectedOperation;
-
-    private LinkMethod _selectedLink;
-
-    private object _value;
-
     protected override async Task OnInitializedAsync()
     {
         await FieldsRegistry.Fetch();
     }
 
-    private void ValueChanged(ChangeEventArgs args)
+    private void ValueChanged(ChangeEventArgs args, Condition condition)
     {
-        _value = args.Value;
+        condition.Value = args.Value;
+    }
+
+    private void CreateCondition()
+    {
+        var cond = new Condition
+        {
+            AttributeName = FieldsRegistry?.Fields?.ElementAt(0)?.Name ?? "",
+            Operation = Operation.Equal
+        };
+        CurrentSelection.Query.Conditions.Add(cond);
+    }
+
+    private void RemoveCondition(Condition condition)
+    {
+        CurrentSelection.Query.Conditions.Remove(condition);
+    }
+
+    private void AttributeChanged(ChangeEventArgs args, Condition condition)
+    {
+        var name = (string) args.Value;
+        condition.AttributeName = name;
     }
 }
