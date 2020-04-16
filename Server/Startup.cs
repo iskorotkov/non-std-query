@@ -22,6 +22,9 @@ namespace NonStdQuery.Server
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<FieldsManager>();
+            services.AddScoped<ExecutionManager>();
+            services.AddScoped<ExplanationManager>();
+            
             services.AddControllersWithViews();
         }
 

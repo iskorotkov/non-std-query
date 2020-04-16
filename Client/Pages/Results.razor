@@ -1,6 +1,30 @@
 ﻿@page "/results"
+@using NonStdQuery.Client.Services
+@using NonStdQuery.Backend.Representation.Data
+
+@inject CurrentSelection CurrentSelection
+
+@if (_explanationResult != null)
+{
+    <span>@_explanationResult.Sql</span>
+}
+
+<button @onclick="@Execute">Execute</button>
+
+<button @onclick="@Explain">Explain</button>
 
 @code
 {
+    private ExecutionResult _executionResult;
+    private ExplanationResult _explanationResult;
 
+    private async Task Execute()
+    {
+        _executionResult = await CurrentSelection.Execute();
+    }
+
+    private async Task Explain()
+    {
+        _explanationResult = await CurrentSelection.Explain();
+    }
 }

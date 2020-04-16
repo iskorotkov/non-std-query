@@ -37,7 +37,8 @@
 
                     <td>
                         @{
-                            var attribute = FieldsRegistry.Fields.First(f => f.Name == condition.AttributeName);
+                            var attribute = FieldsRegistry.Fields
+                                .First(f => f.Name == condition.AttributeName);
                         }
 
                         @switch (attribute.Type)
@@ -106,7 +107,8 @@
     {
         var cond = new Condition
         {
-            AttributeName = FieldsRegistry?.Fields?.ElementAt(0)?.Name ?? "",
+            AttributeName = FieldsRegistry.Fields.ElementAt(0)?.Name
+                            ?? throw new ApplicationException("Attribute or its name is null."),
             Operation = Operation.Equal
         };
         CurrentSelection.Query.Conditions.Add(cond);
@@ -115,11 +117,5 @@
     private void RemoveCondition(Condition condition)
     {
         CurrentSelection.Query.Conditions.Remove(condition);
-    }
-
-    private void AttributeChanged(ChangeEventArgs args, Condition condition)
-    {
-        var name = (string) args.Value;
-        condition.AttributeName = name;
     }
 }
