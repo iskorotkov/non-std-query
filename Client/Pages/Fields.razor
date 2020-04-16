@@ -1,6 +1,49 @@
 ﻿@page "/"
+@inject HttpClient HttpClient
+@inject CurrentSelectionService CurrentSelection
+@using NonStdQuery.Backend.Representation.Data
+@using NonStdQuery.Client.Services
+
+@if (_fields != null)
+{
+    <input type="text" @bind="@_search" @bind:event="oninput"/>
+
+    <table>
+        <tbody>
+            @foreach (var field in _fields
+                .Where(f => f.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)))
+            {
+                <tr>
+                    <td>
+                        <input type="checkbox" @onchange="@((e) => ItemSelectionChanged(field, e))"/>
+                    </td>
+                    <td>@field.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
 @code
 {
-    
+    private List<FieldInfo> _fields;
+    private string _search = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _fields = await HttpClient.GetJsonAsync<List<FieldInfo>>("api/fields");
+    }
+
+    private void ItemSelectionChanged(FieldInfo field, ChangeEventArgs changeEventArgs)
+    {
+        var enabled = (bool) changeEventArgs.Value;
+        if (enabled)
+        {
+            CurrentSelection.Query.SelectAttributes.Add(field.Name);
+        }
+        else
+        {
+            CurrentSelection.Query.SelectAttributes.Remove(field.Name);
+        }
+    }
 }

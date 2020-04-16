@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using System.Text;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using NonStdQuery.Client.Services;
 
 namespace NonStdQuery.Client
 {
@@ -14,6 +15,8 @@ namespace NonStdQuery.Client
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("app");
 
+            builder.Services.AddScoped<CurrentSelectionService>();
+            
             builder.Services.AddBaseAddressHttpClient();
 
             await builder.Build().RunAsync();

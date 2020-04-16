@@ -12,6 +12,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Blazor.HttpClient" Version="3.2.0-preview2.20160.5" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NonStdQuery.Backend.Representation\NonStdQuery.Backend.Representation.csproj" />
     <ProjectReference Include="..\Shared\NonStdQuery.Shared.csproj" />
   </ItemGroup>
   <ItemGroup>

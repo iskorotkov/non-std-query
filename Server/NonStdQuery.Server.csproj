@@ -11,11 +11,16 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Client\NonStdQuery.Client.csproj" />
+    <ProjectReference Include="..\NonStdQuery.Backend.Data\NonStdQuery.Backend.Data.csproj" />
+    <ProjectReference Include="..\NonStdQuery.Backend.Representation\NonStdQuery.Backend.Representation.csproj" />
     <ProjectReference Include="..\Shared\NonStdQuery.Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers" />
+    <Content Include="..\connections.json">
+      <Link>connections.json</Link>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 
