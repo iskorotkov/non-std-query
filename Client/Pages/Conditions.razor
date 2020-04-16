@@ -2,6 +2,7 @@
 @using NonStdQuery.Client.Services
 @using NonStdQuery.Backend.Representation.Data
 @using NonStdQuery.Backend.Data.Queries
+@using NonStdQuery.Backend.Data.Db.Queries
 
 @inject FieldsRegistry FieldsRegistry
 
@@ -24,11 +25,35 @@
         <option value="@Operation.MoreEqual">&ge;</option>
     </select>
 
+    @switch (SelectedField.Type)
+    {
+        case DbType.Bool:
+            <input type="checkbox" @oninput="@(args => ValueChanged(args))"/>
+            break;
+        case DbType.Numeric:
+            <input type="number" @oninput="@(args => ValueChanged(args))"/>
+            break;
+        case DbType.String:
+            <input type="text" @oninput="@(args => ValueChanged(args))"/>
+            break;
+        case DbType.DateTime:
+            <input type="date" @oninput="@(args => ValueChanged(args))"/>
+            break;
+        default:
+            <span>Type isn't supported</span>
+            break;
+    }
+
     <select @bind="@_selectedLink">
         <option value="@LinkMethod.None"></option>
         <option value="@LinkMethod.And">and</option>
         <option value="@LinkMethod.Or">or</option>
     </select>
+}
+
+@if (_value != null)
+{
+    <span>@_value</span>
 }
 
 @code
@@ -40,8 +65,15 @@
 
     private LinkMethod _selectedLink;
 
+    private object _value;
+
     protected override async Task OnInitializedAsync()
     {
         await FieldsRegistry.Fetch();
+    }
+
+    private void ValueChanged(ChangeEventArgs args)
+    {
+        _value = args.Value;
     }
 }
