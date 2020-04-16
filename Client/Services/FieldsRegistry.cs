@@ -19,7 +19,7 @@ namespace NonStdQuery.Client.Services
 
         public async Task Fetch()
         {
-            Fields = await _client.GetJsonAsync<List<FieldInfo>>("api/fields");
+            Fields ??= await _client.GetJsonAsync<List<FieldInfo>>("api/fields");
         }
     }
 }
