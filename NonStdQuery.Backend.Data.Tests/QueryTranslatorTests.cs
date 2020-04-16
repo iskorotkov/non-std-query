@@ -13,7 +13,7 @@ namespace NonStdQuery.Backend.Data.Tests
             var translator = new QueryTranslator();
             var query = new Query
             {
-                SelectAttributes = new List<string> { "Мощь империи", "Название империи" },
+                SelectAttributes = new List<string> { "Мощь империи", "Название империи" }
             };
 
             var dbQuery = translator.Translate(query);
@@ -23,6 +23,34 @@ namespace NonStdQuery.Backend.Data.Tests
             Assert.Equal("empires", dbQuery.Parameters["@2"]);
             Assert.Equal("name", dbQuery.Parameters["@3"]);
             Assert.Equal("empires", dbQuery.Parameters["@4"]);
+        }
+
+        [Fact]
+        public void SingleIndirectJoin()
+        {
+            var translator = new QueryTranslator();
+            var query = new Query
+            {
+                SelectAttributes = new List<string> { "Название империи", "Название альянса" }
+            };
+
+            var dbQuery = translator.Translate(query);
+            const string sql = "select @0.@1, @2.@3\nfrom @4\njoin @5 on @5.@6 = @7.@8;";
+            Assert.Equal(sql, dbQuery.Sql);
+        }
+
+        [Fact]
+        public void SingleDirectJoin()
+        {
+            var translator = new QueryTranslator();
+            var query = new Query
+            {
+                SelectAttributes = new List<string> { "Название империи", "Название планеты" }
+            };
+
+            var dbQuery = translator.Translate(query);
+            const string sql = "select @0.@1, @2.@3\nfrom @4\njoin @5 on @5.@6 = @7.@8;";
+            Assert.Equal(sql, dbQuery.Sql);
         }
     }
 }

@@ -49,10 +49,10 @@ namespace NonStdQuery.Backend.Data.Tests
             };
             var second = new JoinInfo
             {
-                ThisTable = "planets",
-                ThisColumn = "empire_id",
-                ForeignTable = "empires",
-                ForeignColumn = "id"
+                ThisTable = "empires",
+                ThisColumn = "id",
+                ForeignTable = "planets",
+                ForeignColumn = "empire_id"
             };
             
             Assert.Equal(first, result[0]);

@@ -8,6 +8,11 @@
         public string ForeignTable { get; set; }
         public string ForeignColumn { get; set; }
 
+        public void Reverse()
+        {
+            (ThisTable, ThisColumn, ForeignTable, ForeignColumn) = (ForeignTable, ForeignColumn, ThisTable, ThisColumn);
+        }
+
         public bool Equals(JoinInfo info)
         {
             return ThisTable == info.ThisTable

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using NonStdQuery.Backend.Data.Db;
@@ -34,6 +35,37 @@ namespace NonStdQuery.Backend.Data.JoinResolving
                 }
             }
 
+            return ReorderJoins(results);
+        }
+
+        private List<JoinInfo> ReorderJoins(List<JoinInfo> joins)
+        {
+            switch (joins.Count)
+            {
+                case 0:
+                    throw new ArgumentException();
+                case 1:
+                    return joins;
+            }
+
+            var results = new List<JoinInfo> { joins[0] };
+
+            while (results.Count != joins.Count)
+            {
+                foreach (var join in joins)
+                {
+                    if (results.Any(r => r.ForeignTable == join.ThisTable))
+                    {
+                        results.Add(join);
+                    }
+                    else if (results.Any(r => r.ThisTable == join.ForeignTable))
+                    {
+                        join.Reverse();
+                        results.Add(join);
+                    }
+                } 
+            }
+            
             return results;
         }
 
