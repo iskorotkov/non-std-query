@@ -4,14 +4,41 @@
 
 @inject CurrentSelection CurrentSelection
 
-@if (_explanationResult != null)
-{
-    <span>@_explanationResult.Sql</span>
-}
-
 <button @onclick="@Execute">Execute</button>
 
+@if (_executionResult != null)
+{
+    <table>
+        <tbody>
+            @foreach (var row in _executionResult.Data)
+            {
+                <tr>
+                    @foreach (var field in row)
+                    {
+                        <td>@field</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
 <button @onclick="@Explain">Explain</button>
+
+@if (_explanationResult != null)
+{
+    <div class="container">
+        <div class="col-lg-6">
+            <fieldset class="border">
+                <legend class="text-center">SQL</legend>
+
+                <p id="innerPara">
+                    @_explanationResult.Sql
+                </p>
+            </fieldset>
+        </div>
+    </div>
+}
 
 @code
 {

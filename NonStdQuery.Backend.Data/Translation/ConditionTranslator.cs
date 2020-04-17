@@ -1,5 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
+using System.Text.Json;
+using NonStdQuery.Backend.Data.Db.Queries;
 using NonStdQuery.Backend.Data.Queries;
 
 namespace NonStdQuery.Backend.Data.Translation
@@ -43,15 +46,33 @@ namespace NonStdQuery.Backend.Data.Translation
             _builder.Append("\"");
             
             _operationTranslator.Translate(condition.Operation);
-            TranslateConstant(condition);
+            TranslateConstant(condition, attribute);
             _linkTranslator.Translate(condition.Link);
         }
 
-        private void TranslateConstant(Condition condition)
+        private void TranslateConstant(Condition condition, DbAttribute attribute)
         {
             var name = "@" + Index++;
-            Parameters.Add(name, condition.Value);
+            var value = CastValue(condition, attribute);
+            Parameters.Add(name, value);
             _builder.Append(name);
+        }
+
+        private object CastValue(Condition condition, DbAttribute attribute)
+        {
+            if (condition.Value is JsonElement value)
+            {
+                return attribute.Type switch
+                {
+                    DbType.Numeric => value.GetInt32(),
+                    DbType.String => value.GetString(),
+                    DbType.DateTime => value.GetDateTime(),
+                    DbType.Bool => value.GetBoolean(),
+                    _ => throw new ArgumentException()
+                };
+            }
+
+            return condition.Value;
         }
     }
 }
