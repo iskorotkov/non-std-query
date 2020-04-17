@@ -23,7 +23,7 @@ else
 
     @if (_executionResult != null)
     {
-        <table>
+        <table class="table table-bordered">
             <thead>
                 <tr>
                     @foreach (var title in CurrentSelection.Query.SelectAttributes)
@@ -51,7 +51,7 @@ else
 
     @if (_explanationResult != null)
     {
-        <div class="container">
+        <div>
             <div class="col-lg-6">
                 <fieldset class="border">
                     <legend class="text-center">SQL</legend>
@@ -63,7 +63,7 @@ else
             </div>
         </div>
 
-        <div class="container">
+        <div>
             <div class="col-lg-6">
                 <fieldset class="border">
                     <legend class="text-center">Pretty SQL</legend>
