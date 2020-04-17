@@ -23,6 +23,8 @@
             {
                 index++;
                 var cached = condition;
+                var attribute = FieldsRegistry.Fields
+                    .Find(f => f.Name == cached.Condition.AttributeName);
                 <tr>
                     <td>
                         <select @bind="@cached.Condition.AttributeName">
@@ -37,19 +39,18 @@
                         <select @bind="@condition.Condition.Operation">
                             <option value="@Operation.Equal">=</option>
                             <option value="@Operation.NotEqual">!=</option>
-                            <option value="@Operation.Less">&lt;</option>
-                            <option value="@Operation.More">&gt;</option>
-                            <option value="@Operation.LessEqual">&le;</option>
-                            <option value="@Operation.MoreEqual">&ge;</option>
+
+                            @if (attribute.Type != DbType.Bool)
+                            {
+                                <option value="@Operation.Less">&lt;</option>
+                                <option value="@Operation.More">&gt;</option>
+                                <option value="@Operation.LessEqual">&le;</option>
+                                <option value="@Operation.MoreEqual">&ge;</option>
+                            }
                         </select>
                     </td>
 
                     <td>
-                        @{
-                            var attribute = FieldsRegistry.Fields
-                                .Find(f => f.Name == cached.Condition.AttributeName);
-                        }
-
                         @switch (attribute.Type)
                         {
                             case DbType.Bool:
