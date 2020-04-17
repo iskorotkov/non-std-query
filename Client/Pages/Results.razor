@@ -1,6 +1,5 @@
 ﻿@page "/results"
 @using NonStdQuery.Client.Services
-@using NonStdQuery.Backend.Representation.Data
 @using NonStdQuery.Backend.Representation.Validation
 
 @inject CurrentSelection CurrentSelection
@@ -13,7 +12,7 @@
     </div>
 }
 
-@if (Validator.HasErrors(CurrentSelection.Query))
+@if (Validator.HasErrors(CurrentSelection.GetQuery()))
 {
     <span>@_validationString</span>
 }
@@ -21,12 +20,12 @@ else
 {
     <button @onclick="@Execute">Execute</button>
 
-    @if (_executionResult != null)
+    @if (CurrentSelection?.ExecutionResult != null)
     {
         <table class="table table-bordered">
             <thead>
                 <tr>
-                    @foreach (var title in CurrentSelection.Query.SelectAttributes)
+                    @foreach (var title in CurrentSelection.ResultsHeader)
                     {
                         <th>@title</th>
                     }
@@ -34,7 +33,7 @@ else
             </thead>
 
             <tbody>
-                @foreach (var row in _executionResult.Data)
+                @foreach (var row in CurrentSelection.ExecutionResult.Data)
                 {
                     <tr>
                         @foreach (var field in row)
@@ -49,7 +48,7 @@ else
 
     <button @onclick="@Explain">Explain</button>
 
-    @if (_explanationResult != null)
+    @if (CurrentSelection?.ExplanationResult != null)
     {
         <div>
             <div class="col-lg-6">
@@ -57,7 +56,7 @@ else
                     <legend class="text-center">SQL</legend>
 
                     <p id="innerPara">
-                        @_explanationResult.Sql
+                        @CurrentSelection.ExplanationResult.Sql
                     </p>
                 </fieldset>
             </div>
@@ -69,7 +68,7 @@ else
                     <legend class="text-center">Pretty SQL</legend>
 
                     <p id="innerPara">
-                        @_explanationResult.PrettySql
+                        @CurrentSelection.ExplanationResult.PrettySql
                     </p>
                 </fieldset>
             </div>
@@ -79,9 +78,6 @@ else
 
 @code
 {
-    private ExecutionResult _executionResult;
-    private ExplanationResult _explanationResult;
-
     private string _validationString = "В запросе присутствуют ошибки.";
     private string _errorMessage;
 
@@ -89,7 +85,7 @@ else
     {
         try
         {
-            _executionResult = await CurrentSelection.Execute();
+            await CurrentSelection.Execute();
             _errorMessage = null;
         }
         catch (Exception e)
@@ -103,7 +99,7 @@ else
     {
         try
         {
-            _explanationResult = await CurrentSelection.Explain();
+            await CurrentSelection.Explain();
             _errorMessage = null;
         }
         catch (Exception e)

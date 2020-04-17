@@ -1,4 +1,6 @@
-﻿using System.Net.Http;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using NonStdQuery.Backend.Data.Queries;
@@ -8,23 +10,39 @@ namespace NonStdQuery.Client.Services
 {
     public class CurrentSelection
     {
-        public Query Query { get; } = new Query();
+        public Query GetQuery()
+        {
+            IsDirty = true;
+            return _query;
+        }
 
+        public ExecutionResult ExecutionResult { get; set; }
+        
+        public ExplanationResult ExplanationResult { get; set; }
+        
+        public List<string> ResultsHeader { get; private set; } = new List<string>();
+
+        public bool IsDirty { get; private set; }
+        
         private readonly HttpClient _client;
+        private readonly Query _query = new Query();
 
         public CurrentSelection(HttpClient client)
         {
             _client = client;
         }
 
-        public Task<ExecutionResult> Execute()
+        public async Task Execute()
         {
-            return _client.PostJsonAsync<ExecutionResult>("api/queries/execute", Query);
+            ResultsHeader = _query.SelectAttributes.ToList();
+            ExecutionResult = await _client.PostJsonAsync<ExecutionResult>("api/queries/execute", GetQuery());
+            IsDirty = false;
         }
 
-        public Task<ExplanationResult> Explain()
+        public async Task Explain()
         {
-            return _client.PostJsonAsync<ExplanationResult>("api/queries/explain", Query);
+            ExplanationResult = await _client.PostJsonAsync<ExplanationResult>("api/queries/explain", GetQuery());
+            IsDirty = false;
         }
     }
 }

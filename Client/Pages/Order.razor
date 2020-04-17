@@ -12,11 +12,11 @@
     <table>
         <tbody>
             @{
-                var errors = Validator.ValidateSort(CurrentSelection.Query);
+                var errors = Validator.ValidateSort(CurrentSelection.GetQuery());
                 var index = -1;
             }
             
-            @foreach (var attribute in CurrentSelection.Query.SortAttributes)
+            @foreach (var attribute in CurrentSelection.GetQuery().SortAttributes)
             {
                 index++;
                 var cached = attribute;
@@ -73,7 +73,7 @@
 
     private void RemoveAttribute(SortAttribute cached)
     {
-        CurrentSelection.Query.SortAttributes.Remove(cached);
+        CurrentSelection.GetQuery().SortAttributes.Remove(cached);
     }
 
     private void AddAttribute()
@@ -82,6 +82,6 @@
         {
             AttributeName = FieldsRegistry?.Fields?.ElementAt(0)?.Name ?? ""
         };
-        CurrentSelection.Query.SortAttributes.Add(attribute);
+        CurrentSelection.GetQuery().SortAttributes.Add(attribute);
     }
 }

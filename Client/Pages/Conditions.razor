@@ -14,11 +14,11 @@
     <table>
         <tbody>
             @{
-                var errors = Validator.ValidateConditions(CurrentSelection.Query);
+                var errors = Validator.ValidateConditions(CurrentSelection.GetQuery());
                 var index = -1;
             }
 
-            @foreach (var condition in CurrentSelection.Query.Conditions
+            @foreach (var condition in CurrentSelection.GetQuery().Conditions
                 .Select(x => new ConditionWrapper(x)))
             {
                 index++;
@@ -126,11 +126,11 @@
             AttributeName = attribute.Name,
             Operation = Operation.Equal
         };
-        CurrentSelection.Query.Conditions.Add(cond);
+        CurrentSelection.GetQuery().Conditions.Add(cond);
     }
 
     private void RemoveCondition(Condition condition)
     {
-        CurrentSelection.Query.Conditions.Remove(condition);
+        CurrentSelection.GetQuery().Conditions.Remove(condition);
     }
 }

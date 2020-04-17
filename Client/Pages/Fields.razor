@@ -9,7 +9,7 @@
 @inject QueryValidator Validator
 
 @{
-    var error = Validator.ValidateSelect(CurrentSelection.Query);
+    var error = Validator.ValidateSelect(CurrentSelection.GetQuery());
     if (error != null)
     {
         <span>@error.Message</span>
@@ -42,7 +42,7 @@
                         <tr>
                             <td>
                                 <input type="checkbox"
-                                       checked="@CurrentSelection.Query.SelectAttributes.Contains(field.Name)"
+                                       checked="@CurrentSelection.GetQuery().SelectAttributes.Contains(field.Name)"
                                        @onchange="@(e => ItemSelectionChanged(f, e))"/>
                             </td>
                             <td>@field.Name</td>
@@ -55,7 +55,7 @@
         <div class="p-2">
             <span>Selected items:</span>
             <ul>
-                @foreach (var item in CurrentSelection.Query.SelectAttributes)
+                @foreach (var item in CurrentSelection.GetQuery().SelectAttributes)
                 {
                     <li>@item</li>
                 }
@@ -78,14 +78,14 @@
         var enabled = (bool) changeEventArgs.Value;
         if (enabled)
         {
-            if (!CurrentSelection.Query.SelectAttributes.Contains(field.Name))
+            if (!CurrentSelection.GetQuery().SelectAttributes.Contains(field.Name))
             {
-                CurrentSelection.Query.SelectAttributes.Add(field.Name);
+                CurrentSelection.GetQuery().SelectAttributes.Add(field.Name);
             }
         }
-        else if (CurrentSelection.Query.SelectAttributes.Contains(field.Name))
+        else if (CurrentSelection.GetQuery().SelectAttributes.Contains(field.Name))
         {
-            CurrentSelection.Query.SelectAttributes.Remove(field.Name);
+            CurrentSelection.GetQuery().SelectAttributes.Remove(field.Name);
         }
     }
 
@@ -93,9 +93,9 @@
     {
         foreach (var field in FieldsRegistry.Fields)
         {
-            if (!CurrentSelection.Query.SelectAttributes.Contains(field.Name))
+            if (!CurrentSelection.GetQuery().SelectAttributes.Contains(field.Name))
             {
-                CurrentSelection.Query.SelectAttributes.Add(field.Name);
+                CurrentSelection.GetQuery().SelectAttributes.Add(field.Name);
             }
         }
         StateHasChanged();
@@ -103,7 +103,7 @@
 
     private void DeselectAll()
     {
-        CurrentSelection.Query.SelectAttributes.Clear();
+        CurrentSelection.GetQuery().SelectAttributes.Clear();
         StateHasChanged();
     }
 
