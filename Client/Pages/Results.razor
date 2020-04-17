@@ -1,70 +1,81 @@
 ﻿@page "/results"
 @using NonStdQuery.Client.Services
 @using NonStdQuery.Backend.Representation.Data
+@using NonStdQuery.Backend.Representation.Validation
 
 @inject CurrentSelection CurrentSelection
+@inject QueryValidator Validator
 
-<button @onclick="@Execute">Execute</button>
-
-@if (_executionResult != null)
+@if (Validator.HasErrors(CurrentSelection.Query))
 {
-    <table>
-        <thead>
-            <tr>
-                @foreach (var title in CurrentSelection.Query.SelectAttributes)
-                {
-                    <th>@title</th>
-                }
-            </tr>    
-        </thead>
-        
-        <tbody>
-            @foreach (var row in _executionResult.Data)
-            {
+    <span>@_validationString</span>
+}
+else
+{
+    <button @onclick="@Execute">Execute</button>
+
+    @if (_executionResult != null)
+    {
+        <table>
+            <thead>
                 <tr>
-                    @foreach (var field in row)
+                    @foreach (var title in CurrentSelection.Query.SelectAttributes)
                     {
-                        <td>@field</td>
+                        <th>@title</th>
                     }
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
 
-<button @onclick="@Explain">Explain</button>
+            <tbody>
+                @foreach (var row in _executionResult.Data)
+                {
+                    <tr>
+                        @foreach (var field in row)
+                        {
+                            <td>@field</td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 
-@if (_explanationResult != null)
-{
-    <div class="container">
-        <div class="col-lg-6">
-            <fieldset class="border">
-                <legend class="text-center">SQL</legend>
+    <button @onclick="@Explain">Explain</button>
 
-                <p id="innerPara">
-                    @_explanationResult.Sql
-                </p>
-            </fieldset>
+    @if (_explanationResult != null)
+    {
+        <div class="container">
+            <div class="col-lg-6">
+                <fieldset class="border">
+                    <legend class="text-center">SQL</legend>
+
+                    <p id="innerPara">
+                        @_explanationResult.Sql
+                    </p>
+                </fieldset>
+            </div>
         </div>
-    </div>
 
-    <div class="container">
-        <div class="col-lg-6">
-            <fieldset class="border">
-                <legend class="text-center">Pretty SQL</legend>
+        <div class="container">
+            <div class="col-lg-6">
+                <fieldset class="border">
+                    <legend class="text-center">Pretty SQL</legend>
 
-                <p id="innerPara">
-                    @_explanationResult.PrettySql
-                </p>
-            </fieldset>
+                    <p id="innerPara">
+                        @_explanationResult.PrettySql
+                    </p>
+                </fieldset>
+            </div>
         </div>
-    </div>
+    }
 }
 
 @code
 {
     private ExecutionResult _executionResult;
     private ExplanationResult _explanationResult;
+
+    private string _validationString = "В запросе присутствуют ошибки.";
 
     private async Task Execute()
     {

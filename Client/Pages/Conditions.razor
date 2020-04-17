@@ -2,15 +2,20 @@
 @using NonStdQuery.Client.Services
 @using NonStdQuery.Backend.Data.Queries
 @using NonStdQuery.Backend.Data.Db.Queries
+@using NonStdQuery.Backend.Representation.Validation
 @using NonStdQuery.Client.Data
 
 @inject FieldsRegistry FieldsRegistry
 @inject CurrentSelection CurrentSelection
+@inject QueryValidator Validator
 
 @if (FieldsRegistry.Fields != null)
 {
     <table>
         <tbody>
+            @{
+                var errors = Validator.ValidateConditions(CurrentSelection.Query);
+            }
 
             @foreach (var condition in CurrentSelection.Query.Conditions
                 .Select(x => new ConditionWrapper(x)))
@@ -66,7 +71,7 @@
                                 break;
                         }
                     </td>
-                    
+
                     <td>
                         <select @bind="@condition.Condition.Link">
                             <option value="@LinkMethod.None"></option>
@@ -81,6 +86,17 @@
                                 @onclick="@(args => RemoveCondition(cached.Condition))">
                             Remove
                         </button>
+                    </td>
+
+                    <td>
+                        @{
+                            var error = errors.FirstOrDefault(x =>
+                                x.AttributeName == cached.Condition.AttributeName);
+                            if (error != null)
+                            {
+                                <span>@error.Message</span>
+                            }
+                        }
                     </td>
                 </tr>
             }

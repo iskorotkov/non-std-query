@@ -1,10 +1,20 @@
 ﻿@page "/"
 
+@using NonStdQuery.Backend.Representation.Data
+@using NonStdQuery.Backend.Representation.Validation
+@using NonStdQuery.Client.Services
+
 @inject CurrentSelection CurrentSelection
 @inject FieldsRegistry FieldsRegistry
+@inject QueryValidator Validator
 
-@using NonStdQuery.Backend.Representation.Data
-@using NonStdQuery.Client.Services
+@{
+    var error = Validator.ValidateSelect(CurrentSelection.Query);
+    if (error != null)
+    {
+        <span>@error.Message</span>
+    }
+}
 
 @if (FieldsRegistry.Fields != null)
 {

@@ -1,14 +1,20 @@
 ﻿@page "/order"
 @using NonStdQuery.Client.Services
 @using NonStdQuery.Backend.Data.Queries
+@using NonStdQuery.Backend.Representation.Validation
 
 @inject CurrentSelection CurrentSelection
 @inject FieldsRegistry FieldsRegistry
+@inject QueryValidator Validator
 
 @if (FieldsRegistry.Fields != null)
 {
     <table>
         <tbody>
+            @{
+                var errors = Validator.ValidateSort(CurrentSelection.Query);
+            }
+            
             @foreach (var attribute in CurrentSelection.Query.SortAttributes)
             {
                 var cached = attribute;
@@ -34,6 +40,16 @@
                                 @onclick="@(args => RemoveAttribute(cached))">
                             Remove
                         </button>
+                    </td>
+                    
+                    <td>
+                        @{
+                            var error = errors.FirstOrDefault(x => x.AttributeName == cached.AttributeName);
+                            if (error != null)
+                            {
+                                <span>@error.Message</span>
+                            }
+                        }
                     </td>
                 </tr>
             }

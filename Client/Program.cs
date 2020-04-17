@@ -1,9 +1,7 @@
-using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Text;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using NonStdQuery.Backend.Representation.Validation;
 using NonStdQuery.Client.Services;
 
 namespace NonStdQuery.Client
@@ -17,6 +15,7 @@ namespace NonStdQuery.Client
 
             builder.Services.AddScoped<CurrentSelection>();
             builder.Services.AddScoped<FieldsRegistry>();
+            builder.Services.AddScoped<QueryValidator>();
             
             builder.Services.AddBaseAddressHttpClient();
 
