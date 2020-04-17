@@ -15,11 +15,13 @@
         <tbody>
             @{
                 var errors = Validator.ValidateConditions(CurrentSelection.Query);
+                var index = -1;
             }
 
             @foreach (var condition in CurrentSelection.Query.Conditions
                 .Select(x => new ConditionWrapper(x)))
             {
+                index++;
                 var cached = condition;
                 <tr>
                     <td>
@@ -91,7 +93,7 @@
                     <td>
                         @{
                             var error = errors.FirstOrDefault(x =>
-                                x.AttributeName == cached.Condition.AttributeName);
+                                x.AttributeIndex == index);
                             if (error != null)
                             {
                                 <span>@error.Message</span>

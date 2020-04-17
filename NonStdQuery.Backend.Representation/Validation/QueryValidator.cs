@@ -24,19 +24,18 @@ namespace NonStdQuery.Backend.Representation.Validation
         {
             var errors = new List<AttributeError>();
             var attributes = query.SortAttributes;
-            foreach (var attribute in attributes)
+            for (var index = 0; index < attributes.Count; index++)
             {
+                var attribute = attributes[index];
                 if (attributes.All(x =>
                     x.AttributeName != attribute.AttributeName || x == attribute)) continue;
 
-                if (errors.All(x => x.AttributeName != attribute.AttributeName))
+                errors.Add(new AttributeError
                 {
-                    errors.Add(new AttributeError
-                    {
-                        AttributeName = attribute.AttributeName,
-                        Message = "Данный атрибут повторяется несколько раз"
-                    });
-                }
+                    AttributeName = attribute.AttributeName,
+                    Message = "Данный атрибут повторяется несколько раз",
+                    AttributeIndex = index
+                });
             }
 
             return errors;
@@ -54,7 +53,8 @@ namespace NonStdQuery.Backend.Representation.Validation
                     errors.Add(new AttributeError
                     {
                         AttributeName = condition.AttributeName,
-                        Message = "Необходимо указать связку"
+                        Message = "Необходимо указать связку",
+                        AttributeIndex = i
                     });
                 }
                 else if (i == length - 1 && condition.Link != LinkMethod.None)
@@ -62,7 +62,8 @@ namespace NonStdQuery.Backend.Representation.Validation
                     errors.Add(new AttributeError
                     {
                         AttributeName = condition.AttributeName,
-                        Message = "У последнего атрибута не должно быть связки"
+                        Message = "У последнего атрибута не должно быть связки",
+                        AttributeIndex = i
                     });
                 }
             }

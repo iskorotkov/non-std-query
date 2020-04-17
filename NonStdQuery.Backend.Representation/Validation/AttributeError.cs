@@ -3,5 +3,6 @@
     public class AttributeError : ValidationError
     {
         public string AttributeName { get; set; }
+        public int AttributeIndex { get; set; }
     }
 }

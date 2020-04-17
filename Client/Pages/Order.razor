@@ -13,10 +13,12 @@
         <tbody>
             @{
                 var errors = Validator.ValidateSort(CurrentSelection.Query);
+                var index = -1;
             }
             
             @foreach (var attribute in CurrentSelection.Query.SortAttributes)
             {
+                index++;
                 var cached = attribute;
                 <tr>
                     <td>
@@ -44,7 +46,7 @@
                     
                     <td>
                         @{
-                            var error = errors.FirstOrDefault(x => x.AttributeName == cached.AttributeName);
+                            var error = errors.FirstOrDefault(x => x.AttributeIndex == index);
                             if (error != null)
                             {
                                 <span>@error.Message</span>
