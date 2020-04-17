@@ -9,6 +9,15 @@
 @if (_executionResult != null)
 {
     <table>
+        <thead>
+            <tr>
+                @foreach (var title in CurrentSelection.Query.SelectAttributes)
+                {
+                    <th>@title</th>
+                }
+            </tr>    
+        </thead>
+        
         <tbody>
             @foreach (var row in _executionResult.Data)
             {
@@ -34,6 +43,18 @@
 
                 <p id="innerPara">
                     @_explanationResult.Sql
+                </p>
+            </fieldset>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="col-lg-6">
+            <fieldset class="border">
+                <legend class="text-center">Pretty SQL</legend>
+
+                <p id="innerPara">
+                    @_explanationResult.PrettySql
                 </p>
             </fieldset>
         </div>
