@@ -27,15 +27,21 @@ namespace NonStdQuery.Backend.Data.Translation
             BuildFromPart(builder, attributes);
             BuildJoinList(builder, attributes);
 
-            builder.Append("\nwhere ");
-            
-            var conditionTranslator = new ConditionTranslator(builder);
-            conditionTranslator.Translate(query.Conditions);
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            if (query.Conditions?.Count > 0)
+            {
+                builder.Append("\nwhere");
+
+                var conditionTranslator = new ConditionTranslator(builder);
+                conditionTranslator.Translate(query.Conditions);
+
+                parameters = conditionTranslator.Parameters;
+            }
             
             BuildOrderByList(builder, query.SortAttributes);
             builder.Append(";");
 
-            return new DbQuery(builder.ToString(), conditionTranslator.Parameters);
+            return new DbQuery(builder.ToString(), parameters);
         }
 
         private static void BuildJoinList(StringBuilder builder, List<DbAttribute> attributes)
