@@ -19,7 +19,7 @@
   <ItemGroup>
     <Content Include="..\connections.json">
       <Link>connections.json</Link>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
