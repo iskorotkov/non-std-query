@@ -6,6 +6,13 @@
 @inject CurrentSelection CurrentSelection
 @inject QueryValidator Validator
 
+@if (_errorMessage != null)
+{
+    <div>
+        @_errorMessage
+    </div>
+}
+
 @if (Validator.HasErrors(CurrentSelection.Query))
 {
     <span>@_validationString</span>
@@ -76,14 +83,33 @@ else
     private ExplanationResult _explanationResult;
 
     private string _validationString = "В запросе присутствуют ошибки.";
+    private string _errorMessage;
 
     private async Task Execute()
     {
-        _executionResult = await CurrentSelection.Execute();
+        try
+        {
+            _executionResult = await CurrentSelection.Execute();
+            _errorMessage = null;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            _errorMessage = "Произошла ошибка во время выполнения запроса.";
+        }
     }
 
     private async Task Explain()
     {
-        _explanationResult = await CurrentSelection.Explain();
+        try
+        {
+            _explanationResult = await CurrentSelection.Explain();
+            _errorMessage = null;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            _errorMessage = "Произошла ошибка во время составления запроса.";
+        }
     }
 }
