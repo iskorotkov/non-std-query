@@ -23,6 +23,7 @@
             {
                 index++;
                 var cached = condition;
+                cached.ConditionsPage = this;
                 var attribute = FieldsRegistry.Fields
                     .Find(f => f.Name == cached.Condition.AttributeName);
                 <tr>
@@ -36,7 +37,7 @@
                     </td>
 
                     <td>
-                        <select @bind="@condition.Condition.Operation">
+                        <select @bind="@condition.Operation">
                             <option value="@Operation.Equal">=</option>
                             <option value="@Operation.NotEqual">!=</option>
 
@@ -139,5 +140,10 @@
     private void RemoveCondition(Condition condition)
     {
         CurrentSelection.GetQuery().Conditions.Remove(condition);
+    }
+
+    public void Refresh()
+    {
+        StateHasChanged();
     }
 }

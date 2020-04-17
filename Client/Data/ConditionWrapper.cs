@@ -1,5 +1,6 @@
 ﻿using System;
 using NonStdQuery.Backend.Data.Queries;
+using NonStdQuery.Client.Pages;
 
 namespace NonStdQuery.Client.Data
 {
@@ -9,14 +10,25 @@ namespace NonStdQuery.Client.Data
 
         public ConditionWrapper()
         {
-            
         }
 
         public ConditionWrapper(Condition condition)
         {
             Condition = condition;
         }
-        
+
+        public Conditions ConditionsPage { get; set; }
+
+        public Operation Operation
+        {
+            get => Condition.Operation;
+            set
+            {
+                Condition.Operation = value;
+                ConditionsPage?.Refresh();
+            }
+        }
+
         public int IntValue
         {
             get
@@ -26,6 +38,7 @@ namespace NonStdQuery.Client.Data
                     return x;
                 }
 
+                Operation = Operation.Equal;
                 Condition.Value = 0;
                 return 0;
             }
@@ -41,6 +54,7 @@ namespace NonStdQuery.Client.Data
                     return x;
                 }
 
+                Operation = Operation.Equal;
                 Condition.Value = "";
                 return "";
             }
@@ -56,6 +70,7 @@ namespace NonStdQuery.Client.Data
                     return x;
                 }
 
+                Operation = Operation.Equal;
                 Condition.Value = false;
                 return false;
             }
@@ -71,6 +86,7 @@ namespace NonStdQuery.Client.Data
                     return x;
                 }
 
+                Operation = Operation.Equal;
                 Condition.Value = DateTime.Now;
                 return DateTime.Now;
             }
