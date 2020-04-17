@@ -47,6 +47,13 @@
                                 <option value="@Operation.LessEqual">&le;</option>
                                 <option value="@Operation.MoreEqual">&ge;</option>
                             }
+                            
+                            @if (attribute.Type == DbType.String)
+                            {
+                                <option value="@Operation.Like">like</option>
+                                <option value="@Operation.ILike">case insensitive like</option>
+                                <option value="@Operation.NotLike">not like</option>
+                            }
                         </select>
                     </td>
 

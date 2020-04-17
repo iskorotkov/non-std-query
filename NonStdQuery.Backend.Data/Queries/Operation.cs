@@ -7,6 +7,9 @@
         Equal,
         NotEqual,
         LessEqual,
-        MoreEqual
+        MoreEqual,
+        Like,
+        ILike,
+        NotLike
     }
 }

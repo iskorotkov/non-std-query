@@ -23,6 +23,9 @@ namespace NonStdQuery.Backend.Data.Translation
                 Operation.LessEqual => " <= ",
                 Operation.MoreEqual => " >= ",
                 Operation.NotEqual => " <> ",
+                Operation.Like => " like ",
+                Operation.ILike => " ilike ",
+                Operation.NotLike => " not like ",
                 _ => throw new NotImplementedException()
             };
             _builder.Append(value);
