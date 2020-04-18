@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Dapper;
 using NonStdQuery.Backend.Data.Db;
 using NonStdQuery.Backend.Data.Db.Queries;
-using NonStdQuery.Backend.Data.Serialization;
 using NonStdQuery.Backend.Data.Translation;
 using NonStdQuery.Backend.Representation.Data;
 using Npgsql;
@@ -16,7 +15,6 @@ namespace NonStdQuery.Backend.Representation.Managers
     {
         private readonly ConnectionFactory _factory = new ConnectionFactory();
         private readonly TypeTranslator _typeTranslator = new TypeTranslator();
-        private readonly ValueDeserializer _deserializer = new ValueDeserializer();
 
         public async Task<List<Tooltip>> GetTooltips()
         {
@@ -78,27 +76,32 @@ namespace NonStdQuery.Backend.Representation.Managers
                 case DbType.Integer:
                     var n = await subjectConnection.QueryAsync<long>($@"
                                               select distinct {fieldName}
-                                              from {tableName};");
+                                              from {tableName}
+                                              where {fieldName} is not null;");
                     return n.Select(x => (object) x);
                 case DbType.String:
                     var s = await subjectConnection.QueryAsync<string>($@"
                                                 select distinct {fieldName}
-                                                from {tableName};");
+                                                from {tableName}
+                                                where {fieldName} is not null;");
                     return s.Select(x => (object) x);
                 case DbType.DateTime:
                     var dt = await subjectConnection.QueryAsync<DateTime>($@"
                                                     select distinct {fieldName}
-                                                    from {tableName};");
+                                                    from {tableName}
+                                                    where {fieldName} is not null;");
                     return dt.Select(x => (object) x);
                 case DbType.Double:
                     var d = await subjectConnection.QueryAsync<double>($@"
                                                     select distinct {fieldName}
-                                                    from {tableName};");
+                                                    from {tableName}
+                                                    where {fieldName} is not null;");
                     return d.Select(x => (object) x);
                 case DbType.Bool:
                     var b = await subjectConnection.QueryAsync<bool>($@"
                                                select distinct {fieldName}
-                                               from {tableName};");
+                                               from {tableName}
+                                               where {fieldName} is not null;");
                     return b.Select(x => (object) x);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(translatedType), translatedType, null);
