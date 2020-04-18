@@ -32,8 +32,7 @@ namespace NonStdQuery.Backend.Data.Translation
         private readonly List<string> _stringTypes = new List<string>
         {
             "character varying",
-            "varchar",
-            "timestamp with time zone",
+            "varchar"
         };
 
         public DbType StringToType(string type)
