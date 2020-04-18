@@ -5,71 +5,86 @@
 @inject CurrentSelection CurrentSelection
 @inject QueryValidator Validator
 
-@if (_errorMessage != null)
+@if (CurrentSelection.IsExecutionDirty && CurrentSelection?.ExecutionResult != null)
 {
-    <div>
-        @_errorMessage
-    </div>
+    <div>Reexecute to get updated results.</div>
 }
 
-@if (Validator.HasErrors(CurrentSelection.GetQuery()))
+@if (_errorMessage != null)
 {
-    <span>@_validationString</span>
+    <div>@_errorMessage</div>
+}
+
+@{
+    var hasErrors = Validator.HasErrors(CurrentSelection.GetQuery());
+}
+
+@if (hasErrors)
+{
+    <div>@_validationString</div>
 }
 else
 {
     <button @onclick="@Execute">Execute</button>
+}
 
-    @if (CurrentSelection?.ExecutionResult != null)
-    {
-        <table class="table table-bordered">
-            <thead>
+@if (CurrentSelection.ExecutionResult != null)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                @foreach (var title in CurrentSelection.ResultsHeader)
+                {
+                    <th>@title</th>
+                }
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var row in CurrentSelection.ExecutionResult.Data)
+            {
                 <tr>
-                    @foreach (var title in CurrentSelection.ResultsHeader)
+                    @foreach (var field in row)
                     {
-                        <th>@title</th>
+                        <td>@field</td>
                     }
                 </tr>
-            </thead>
+            }
+        </tbody>
+    </table>
+}
 
-            <tbody>
-                @foreach (var row in CurrentSelection.ExecutionResult.Data)
-                {
-                    <tr>
-                        @foreach (var field in row)
-                        {
-                            <td>@field</td>
-                        }
-                    </tr>
-                }
-            </tbody>
-        </table>
-    }
+@if (CurrentSelection.IsExplanationDirty && CurrentSelection?.ExplanationResult != null)
+{
+    <div>Reexecute to get updated SQL.</div>
+}
 
+@if (!hasErrors)
+{
     <button @onclick="@Explain">Explain</button>
+}
 
-    @if (CurrentSelection?.ExplanationResult != null)
-    {
-        <div>
-            <div class="col-lg-6">
-                <fieldset class="border">
-                    <legend class="text-center">SQL</legend>
+@if (CurrentSelection.ExplanationResult != null)
+{
+    <div>
+        <div class="col-lg-6">
+            <fieldset class="border">
+                <legend class="text-center">SQL</legend>
 
-                    <span style="white-space: pre-wrap">@CurrentSelection.ExplanationResult.Sql</span>
-                </fieldset>
-            </div>
+                <span style="white-space: pre-wrap">@CurrentSelection.ExplanationResult.Sql</span>
+            </fieldset>
         </div>
+    </div>
 
-        <div>
-            <div class="col-lg-6">
-                <fieldset class="border">
-                    <legend class="text-center">Pretty SQL</legend>
+    <div>
+        <div class="col-lg-6">
+            <fieldset class="border">
+                <legend class="text-center">Pretty SQL</legend>
 
-                    <span style="white-space: pre-wrap">@CurrentSelection.ExplanationResult.PrettySql</span>
-                </fieldset>
-            </div>
+                <span style="white-space: pre-wrap">@CurrentSelection.ExplanationResult.PrettySql</span>
+            </fieldset>
         </div>
-    }
+    </div>
 }
 
 @code
