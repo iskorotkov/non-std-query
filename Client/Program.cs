@@ -1,6 +1,8 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
+using NonStdQuery.Backend.Data.Serialization;
+using NonStdQuery.Backend.Representation.Managers;
 using NonStdQuery.Backend.Representation.Validation;
 using NonStdQuery.Client.Services;
 
@@ -16,7 +18,9 @@ namespace NonStdQuery.Client
             builder.Services.AddScoped<CurrentSelection>();
             builder.Services.AddScoped<FieldsRegistry>();
             builder.Services.AddScoped<QueryValidator>();
-            
+            builder.Services.AddScoped<TooltipsRegistry>();
+            builder.Services.AddScoped<ValueDeserializer>();
+
             builder.Services.AddBaseAddressHttpClient();
 
             await builder.Build().RunAsync();

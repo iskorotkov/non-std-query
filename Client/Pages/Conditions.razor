@@ -8,6 +8,7 @@
 @inject FieldsRegistry FieldsRegistry
 @inject CurrentSelection CurrentSelection
 @inject QueryValidator Validator
+@inject TooltipsRegistry TooltipsRegistry
 
 @if (FieldsRegistry.Fields != null)
 {
@@ -59,28 +60,45 @@
                     </td>
 
                     <td>
+                        @{
+                            var tooltipsList = $"tooltips{attribute.Name}";    
+                        }
+                        
                         @switch (attribute.Type)
                         {
                             case DbType.Bool:
-                                <input type="checkbox"
+                                <input type="checkbox" list="@tooltipsList"
                                        @bind="@condition.BoolValue"/>
                                 break;
-                            case DbType.Numeric:
-                                <input type="number"
+                            case DbType.Integer:
+                                <input type="number" list="@tooltipsList"
                                        @bind="@condition.IntValue"/>
                                 break;
                             case DbType.String:
-                                <input type="text"
+                                <input type="text" list="@tooltipsList"
                                        @bind="@condition.StringValue"/>
                                 break;
                             case DbType.DateTime:
-                                <input type="date"
+                                <input type="date" list="@tooltipsList"
                                        @bind="@condition.DateTimeValue"/>
                                 break;
                             default:
                                 <span>Type isn't supported</span>
                                 break;
                         }
+
+                        <datalist id="@tooltipsList">
+                            @{
+                                var tooltip = TooltipsRegistry.Tooltips
+                                    .Find(x => x.FieldName == cached.Condition.AttributeName);
+                                var tooltipItems = tooltip?.Items ?? new List<object>();
+                            }
+
+                            @foreach (var tooltipItem in tooltipItems)
+                            {
+                                <option value="@tooltipItem">@tooltipItem.ToString()</option>
+                            }
+                        </datalist>
                     </td>
 
                     <td>
@@ -124,6 +142,7 @@
     protected override async Task OnInitializedAsync()
     {
         await FieldsRegistry.Fetch();
+        await TooltipsRegistry.Fetch();
     }
 
     private void CreateCondition()

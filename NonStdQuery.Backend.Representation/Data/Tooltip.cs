@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using NonStdQuery.Backend.Data.Db.Queries;
+using System.Collections.Generic;
 
 namespace NonStdQuery.Backend.Representation.Data
 {
     public class Tooltip
     {
         public string FieldName { get; set; }
-        public List<string> Words { get; set; } = new List<string>();
+        public DbType Type { get; set; }
+        public List<object> Items { get; set; } = new List<object>();
     }
 }

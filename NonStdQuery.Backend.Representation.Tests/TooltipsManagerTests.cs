@@ -1,3 +1,4 @@
+using NonStdQuery.Backend.Data.Db.Queries;
 using NonStdQuery.Backend.Representation.Managers;
 using Xunit;
 
@@ -17,7 +18,8 @@ namespace NonStdQuery.Backend.Representation.Tests
             foreach (var tooltip in tooltips)
             {
                 Assert.NotEmpty(tooltip.FieldName);
-                Assert.NotEmpty(tooltip.Words);
+                Assert.NotEqual(DbType.Undefined, tooltip.Type);
+                Assert.NotEmpty(tooltip.Items);
             }
         }
     }

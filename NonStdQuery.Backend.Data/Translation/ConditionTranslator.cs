@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
-using System.Text.Json;
 using NonStdQuery.Backend.Data.Db.Queries;
 using NonStdQuery.Backend.Data.Queries;
+using NonStdQuery.Backend.Data.Serialization;
 
 namespace NonStdQuery.Backend.Data.Translation
 {
@@ -13,6 +12,7 @@ namespace NonStdQuery.Backend.Data.Translation
         private readonly StringBuilder _builder;
         private readonly OperationTranslator _operationTranslator;
         private readonly LinkTranslator _linkTranslator;
+        private readonly ValueDeserializer _deserializer = new ValueDeserializer();
 
         public Dictionary<string, object> Parameters { get; }
         public int Index { get; private set; }
@@ -46,33 +46,16 @@ namespace NonStdQuery.Backend.Data.Translation
             _builder.Append("\"");
             
             _operationTranslator.Translate(condition.Operation);
-            TranslateConstant(condition, attribute);
+            TranslateConstant(condition.Value, attribute.Type);
             _linkTranslator.Translate(condition.Link);
         }
 
-        private void TranslateConstant(Condition condition, DbAttribute attribute)
+        private void TranslateConstant(object value, DbType type)
         {
             var name = "@" + Index++;
-            var value = CastValue(condition, attribute);
-            Parameters.Add(name, value);
+            var param = _deserializer.Deserialize(value, type);
+            Parameters.Add(name, param);
             _builder.Append(name);
-        }
-
-        private object CastValue(Condition condition, DbAttribute attribute)
-        {
-            if (condition.Value is JsonElement value)
-            {
-                return attribute.Type switch
-                {
-                    DbType.Numeric => value.GetInt32(),
-                    DbType.String => value.GetString(),
-                    DbType.DateTime => value.GetDateTime(),
-                    DbType.Bool => value.GetBoolean(),
-                    _ => throw new ArgumentException()
-                };
-            }
-
-            return condition.Value;
         }
     }
 }

@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 using NonStdQuery.Backend.Data.Db;
+using NonStdQuery.Backend.Data.Db.Queries;
+using NonStdQuery.Backend.Data.Serialization;
 using NonStdQuery.Backend.Data.Translation;
 using NonStdQuery.Backend.Representation.Data;
+using Npgsql;
 
 namespace NonStdQuery.Backend.Representation.Managers
 {
@@ -12,13 +16,14 @@ namespace NonStdQuery.Backend.Representation.Managers
     {
         private readonly ConnectionFactory _factory = new ConnectionFactory();
         private readonly TypeTranslator _typeTranslator = new TypeTranslator();
+        private readonly ValueDeserializer _deserializer = new ValueDeserializer();
 
         public async Task<List<Tooltip>> GetTooltips()
         {
             var results = new List<Tooltip>();
 
-            using var metadataConnection = _factory.OpenMetadataDbConnection();
-            using var subjectConnection = _factory.OpenSubjectDbConnection();
+            await using var metadataConnection = _factory.OpenMetadataDbConnection();
+            await using var subjectConnection = _factory.OpenSubjectDbConnection();
             var fields = metadataConnection
                 .Query<(string TableName, string FieldName, string FriendlyName)>(@"
                     select table_name as TableName,
@@ -27,7 +32,7 @@ namespace NonStdQuery.Backend.Representation.Managers
                     from fields
                     where friendly_name is not null");
 
-            foreach (var field in fields)
+            foreach (var (tableName, fieldName, friendlyName) in fields)
             {
                 var type = await subjectConnection.QueryFirstAsync<string>(@"
                     select data_type
@@ -35,22 +40,25 @@ namespace NonStdQuery.Backend.Representation.Managers
                     where table_name = @TableName
                         and column_name = @ColumnName
                         and table_schema = 'public'",
-                    new { TableName = field.TableName, ColumnName = field.FieldName });
+                    new { TableName = tableName, ColumnName = fieldName });
 
-                var translated = _typeTranslator.StringToType(type);
+                var translatedType = _typeTranslator.StringToType(type);
 
-                var result = await subjectConnection.QueryAsync<string>($@"
-                    select distinct {field.FieldName}
-                    from {field.TableName};");
-                
+                if (translatedType == DbType.Bool)
+                {
+                    continue;
+                }
+
+                var result = await GetValues(tableName, fieldName, translatedType, subjectConnection);
                 var values = result.ToList();
 
                 if (values.Count > 0)
                 {
                     var tooltip = new Tooltip
                     {
-                        FieldName = field.FriendlyName,
-                        Words = values
+                        FieldName = friendlyName,
+                        Type = translatedType,
+                        Items = values
                     };
 
                     results.Add(tooltip);
@@ -58,6 +66,43 @@ namespace NonStdQuery.Backend.Representation.Managers
             }
 
             return results;
+        }
+
+        private async Task<IEnumerable<object>> GetValues(string tableName, string fieldName, DbType translatedType,
+            NpgsqlConnection subjectConnection)
+        {
+            switch (translatedType)
+            {
+                case DbType.Undefined:
+                    throw new ArgumentException();
+                case DbType.Integer:
+                    var n = await subjectConnection.QueryAsync<long>($@"
+                                              select distinct {fieldName}
+                                              from {tableName};");
+                    return n.Select(x => (object) x);
+                case DbType.String:
+                    var s = await subjectConnection.QueryAsync<string>($@"
+                                                select distinct {fieldName}
+                                                from {tableName};");
+                    return s.Select(x => (object) x);
+                case DbType.DateTime:
+                    var dt = await subjectConnection.QueryAsync<DateTime>($@"
+                                                    select distinct {fieldName}
+                                                    from {tableName};");
+                    return dt.Select(x => (object) x);
+                case DbType.Double:
+                    var d = await subjectConnection.QueryAsync<double>($@"
+                                                    select distinct {fieldName}
+                                                    from {tableName};");
+                    return d.Select(x => (object) x);
+                case DbType.Bool:
+                    var b = await subjectConnection.QueryAsync<bool>($@"
+                                               select distinct {fieldName}
+                                               from {tableName};");
+                    return b.Select(x => (object) x);
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(translatedType), translatedType, null);
+            }
         }
     }
 }

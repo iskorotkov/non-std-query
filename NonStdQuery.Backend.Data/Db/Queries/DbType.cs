@@ -2,7 +2,9 @@
 {
     public enum DbType
     {
-        Numeric,
+        Undefined,
+        Integer,
+        Double,
         String,
         DateTime,
         Bool

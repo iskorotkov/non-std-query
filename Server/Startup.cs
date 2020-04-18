@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NonStdQuery.Backend.Representation;
 using NonStdQuery.Backend.Representation.Managers;
 
 namespace NonStdQuery.Server
@@ -24,6 +23,7 @@ namespace NonStdQuery.Server
             services.AddScoped<FieldsManager>();
             services.AddScoped<ExecutionManager>();
             services.AddScoped<ExplanationManager>();
+            services.AddScoped<TooltipsManager>();
             
             services.AddControllersWithViews();
         }
