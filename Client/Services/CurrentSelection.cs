@@ -10,11 +10,10 @@ namespace NonStdQuery.Client.Services
 {
     public class CurrentSelection
     {
-        public Query GetQuery()
-        {
-            IsDirty = true;
-            return _query;
-        }
+        public Query GetQuery() => _query;
+
+        private int? _executedQueryHash;
+        private int? _explainedQueryHash;
 
         public ExecutionResult ExecutionResult { get; set; }
         
@@ -22,7 +21,8 @@ namespace NonStdQuery.Client.Services
         
         public List<string> ResultsHeader { get; private set; } = new List<string>();
 
-        public bool IsDirty { get; private set; }
+        public bool IsExecutionDirty => _executedQueryHash != null && _executedQueryHash != _query.GetHashCode();
+        public bool IsExplanationDirty => _explainedQueryHash != null && _explainedQueryHash != _query.GetHashCode();
         
         private readonly HttpClient _client;
         private readonly Query _query = new Query();
@@ -35,14 +35,14 @@ namespace NonStdQuery.Client.Services
         public async Task Execute()
         {
             ResultsHeader = _query.SelectAttributes.ToList();
+            _executedQueryHash = _query.GetHashCode();
             ExecutionResult = await _client.PostJsonAsync<ExecutionResult>("api/queries/execute", GetQuery());
-            IsDirty = false;
         }
 
         public async Task Explain()
         {
+            _explainedQueryHash = _query.GetHashCode();
             ExplanationResult = await _client.PostJsonAsync<ExplanationResult>("api/queries/explain", GetQuery());
-            IsDirty = false;
         }
     }
 }
