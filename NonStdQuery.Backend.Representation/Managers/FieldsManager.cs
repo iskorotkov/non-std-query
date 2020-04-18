@@ -13,16 +13,16 @@ namespace NonStdQuery.Backend.Representation.Managers
 
         public IEnumerable<Data.FieldInfo> GetFriendlyFields()
         {
-            IEnumerable<string> results;
-            using (var connection = _factory.OpenMetadataDbConnection())
-            {
-                 results = connection.Query<string>(@"
+            return GetFriendlyNames().Select(BuildFieldInfo);
+        }
+
+        private IEnumerable<string> GetFriendlyNames()
+        {
+            using var connection = _factory.OpenMetadataDbConnection();
+            return connection.Query<string>(@"
                     select friendly_name
                     from fields
                     where friendly_name is not null");
-            }
-
-            return results.Select(BuildFieldInfo);
         }
 
         private Data.FieldInfo BuildFieldInfo(string name)
