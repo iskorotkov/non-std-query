@@ -5,14 +5,9 @@
 @inject CurrentSelection CurrentSelection
 @inject QueryValidator Validator
 
-@if (CurrentSelection.IsExecutionDirty && CurrentSelection?.ExecutionResult != null)
-{
-    <div>Reexecute to get updated results.</div>
-}
-
 @if (_errorMessage != null)
 {
-    <div>@_errorMessage</div>
+    <div class="text-danger m-2">@_errorMessage</div>
 }
 
 @{
@@ -21,11 +16,17 @@
 
 @if (hasErrors)
 {
-    <div>@_validationString</div>
+    <div class="text-danger m-2">@_validationString</div>
 }
-else
+
+@if (CurrentSelection.IsExecutionDirty && CurrentSelection?.ExecutionResult != null)
 {
-    <button @onclick="@Execute">Execute</button>
+    <div class="text-warning m-2">Reexecute to get updated results.</div>
+}
+
+@if (!hasErrors)
+{
+    <button class="btn btn-primary m-2" @onclick="@Execute">Execute</button>
 }
 
 @if (CurrentSelection.ExecutionResult != null)
@@ -56,12 +57,12 @@ else
 
 @if (CurrentSelection.IsExplanationDirty && CurrentSelection?.ExplanationResult != null)
 {
-    <div>Reexecute to get updated SQL.</div>
+    <div class="text-warning m-2">Reexecute to get updated SQL.</div>
 }
 
 @if (!hasErrors)
 {
-    <button @onclick="@Explain">Explain</button>
+    <button class="btn btn-outline-primary m-2" @onclick="@Explain">Explain</button>
 }
 
 @if (CurrentSelection.ExplanationResult != null)

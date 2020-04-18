@@ -15,7 +15,7 @@
                 var errors = Validator.ValidateSort(CurrentSelection.GetQuery());
                 var index = -1;
             }
-            
+
             @foreach (var attribute in CurrentSelection.GetQuery().SortAttributes)
             {
                 index++;
@@ -43,13 +43,13 @@
                             Remove
                         </button>
                     </td>
-                    
+
                     <td>
                         @{
                             var error = errors.FirstOrDefault(x => x.AttributeIndex == index);
                             if (error != null)
                             {
-                                <span>@error.Message</span>
+                                <div class="text-danger">@error.Message</div>
                             }
                         }
                     </td>
@@ -58,7 +58,7 @@
         </tbody>
     </table>
 
-    <button class="btn btn-outline-success"
+    <button class="btn btn-outline-success m-2"
             @onclick="@AddAttribute">
         Add attribute
     </button>

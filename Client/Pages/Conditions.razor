@@ -123,7 +123,7 @@
                                 x.AttributeIndex == index);
                             if (error != null)
                             {
-                                <span>@error.Message</span>
+                                <div class="text-danger">@error.Message</div>
                             }
                         }
                     </td>
@@ -133,7 +133,7 @@
     </table>
 
     <div class="row">
-        <button class="btn btn-outline-success" @onclick="@CreateCondition">Add condition</button>
+        <button class="btn btn-outline-success m-2" @onclick="@CreateCondition">Add condition</button>
     </div>
 }
 

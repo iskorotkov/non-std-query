@@ -10,19 +10,20 @@
 
 @{
     var error = Validator.ValidateSelect(CurrentSelection.GetQuery());
-    if (error != null)
-    {
-        <span>@error.Message</span>
-    }
+}
+
+@if (error != null)
+{
+    <div class="text-warning">@error.Message</div>
 }
 
 @if (FieldsRegistry.Fields != null)
 {
     <div class="row">
-        <button class="btn btn-outline-primary p-2" @onclick="@SelectAll">Select all</button>
-        <button class="btn btn-outline-primary p-2" @onclick="@DeselectAll">Deselect all</button>
+        <button class="btn btn-outline-primary m-2" @onclick="@SelectAll">Select all</button>
+        <button class="btn btn-outline-primary m-2" @onclick="@DeselectAll">Deselect all</button>
     </div>
-    
+
     <div class="row">
         <div class="p-2">
             <div class="row">
@@ -53,7 +54,7 @@
         </div>
 
         <div class="p-2">
-            <span>Selected items:</span>
+            <h5>Selected items:</h5>
             <ul>
                 @foreach (var item in CurrentSelection.GetQuery().SelectAttributes)
                 {
