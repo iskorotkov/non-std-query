@@ -73,7 +73,7 @@
 
     private void RemoveAttribute(SortAttribute cached)
     {
-        CurrentSelection.GetQuery().SortAttributes.Remove(cached);
+        CurrentSelection.GetQuery().SortAttributes.RemoveAll(x => ReferenceEquals(x, cached));
     }
 
     private void AddAttribute()
