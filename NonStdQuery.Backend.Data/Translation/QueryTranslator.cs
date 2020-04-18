@@ -16,20 +16,31 @@ namespace NonStdQuery.Backend.Data.Translation
             {
                 throw new ArgumentException();
             }
-            
+
             var builder = new StringBuilder();
-            var translator = new AttributeTranslator();
+            var attributeTranslator = new AttributeTranslator();
             var attributes = query.SelectAttributes
-                .Select(translator.FriendlyToReal)
+                .Select(attributeTranslator.FriendlyToReal)
                 .ToList();
 
-            var parameters = new Dictionary<string, object>();
             BuildSelectList(builder, attributes);
             BuildFromPart(builder, attributes);
             BuildJoinList(builder, attributes);
+
+            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            if (query.Conditions?.Count > 0)
+            {
+                builder.Append("\nwhere");
+
+                var conditionTranslator = new ConditionTranslator(builder);
+                conditionTranslator.Translate(query.Conditions);
+
+                parameters = conditionTranslator.Parameters;
+            }
+            
             BuildOrderByList(builder, query.SortAttributes);
             builder.Append(";");
-            
+
             return new DbQuery(builder.ToString(), parameters);
         }
 
@@ -67,7 +78,7 @@ namespace NonStdQuery.Backend.Data.Translation
             builder.Append("\"");
         }
 
-        private static void BuildOrderByList(StringBuilder builder, List<string> sortAttributes)
+        private static void BuildOrderByList(StringBuilder builder, List<SortAttribute> sortAttributes)
         {
             if (sortAttributes?.Count > 0)
             {
@@ -75,16 +86,25 @@ namespace NonStdQuery.Backend.Data.Translation
                 builder.Append("\norder by ");
 
                 var orderBy = sortAttributes
-                    .Select(translator.FriendlyToReal)
+                    .Select(x => new { x.Direction, Attribute = translator.FriendlyToReal(x.AttributeName) })
                     .ToList();
 
                 foreach (var attribute in orderBy)
                 {
                     builder.Append("\"");
-                    builder.Append(attribute.TableName);
+                    builder.Append(attribute.Attribute.TableName);
                     builder.Append("\".\"");
-                    builder.Append(attribute.ColumnName);
-                    builder.Append("\", ");
+                    builder.Append(attribute.Attribute.ColumnName);
+                    builder.Append("\"");
+                    
+                    builder.Append(attribute.Direction switch
+                    {
+                        SortDirection.Ascending => " asc",
+                        SortDirection.Descending => " desc",
+                        _ => throw new NotImplementedException()
+                    });
+
+                    builder.Append(", ");
                 }
 
                 builder.Remove(builder.Length - 2, 2);

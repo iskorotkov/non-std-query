@@ -1,0 +1,115 @@
+﻿@page "/"
+
+@using NonStdQuery.Backend.Representation.Data
+@using NonStdQuery.Backend.Representation.Validation
+@using NonStdQuery.Client.Services
+
+@inject CurrentSelection CurrentSelection
+@inject FieldsRegistry FieldsRegistry
+@inject QueryValidator Validator
+
+@{
+    var error = Validator.ValidateSelect(CurrentSelection.GetQuery());
+}
+
+@if (error != null)
+{
+    <div class="text-warning">@error.Message</div>
+}
+
+@if (FieldsRegistry.Fields != null)
+{
+    <div class="row">
+        <button class="btn btn-outline-primary m-2" @onclick="@SelectAll">Select all</button>
+        <button class="btn btn-outline-primary m-2" @onclick="@DeselectAll">Deselect all</button>
+    </div>
+
+    <div class="row">
+        <div class="p-2">
+            <div class="row">
+                <input type="text" @bind="@_search" @bind:event="oninput"/>
+
+                <button class="btn" @onclick="@ClearSearch">
+                    <i class="oi oi-x"></i>
+                </button>
+            </div>
+
+            <table>
+                <tbody>
+                    @foreach (var field in FieldsRegistry.Fields
+                        .Where(f => f.Name.Contains(_search, StringComparison.OrdinalIgnoreCase)))
+                    {
+                        var f = field;
+                        <tr>
+                            <td>
+                                <input type="checkbox"
+                                       checked="@CurrentSelection.GetQuery().SelectAttributes.Contains(field.Name)"
+                                       @onchange="@(e => ItemSelectionChanged(f, e))"/>
+                            </td>
+                            <td>@field.Name</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-2">
+            <h5>Selected items:</h5>
+            <ul>
+                @foreach (var item in CurrentSelection.GetQuery().SelectAttributes)
+                {
+                    <li>@item</li>
+                }
+            </ul>
+        </div>
+    </div>
+}
+
+@code
+{
+    private string _search = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FieldsRegistry.Fetch();
+    }
+
+    private void ItemSelectionChanged(FieldInfo field, ChangeEventArgs changeEventArgs)
+    {
+        var enabled = (bool) changeEventArgs.Value;
+        if (enabled)
+        {
+            if (!CurrentSelection.GetQuery().SelectAttributes.Contains(field.Name))
+            {
+                CurrentSelection.GetQuery().SelectAttributes.Add(field.Name);
+            }
+        }
+        else if (CurrentSelection.GetQuery().SelectAttributes.Contains(field.Name))
+        {
+            CurrentSelection.GetQuery().SelectAttributes.Remove(field.Name);
+        }
+    }
+
+    private void SelectAll()
+    {
+        foreach (var field in FieldsRegistry.Fields)
+        {
+            if (!CurrentSelection.GetQuery().SelectAttributes.Contains(field.Name))
+            {
+                CurrentSelection.GetQuery().SelectAttributes.Add(field.Name);
+            }
+        }
+        StateHasChanged();
+    }
+
+    private void DeselectAll()
+    {
+        CurrentSelection.GetQuery().SelectAttributes.Clear();
+        StateHasChanged();
+    }
+
+    private void ClearSearch()
+    {
+        _search = "";
+    }
+}

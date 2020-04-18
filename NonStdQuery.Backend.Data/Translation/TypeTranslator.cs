@@ -6,11 +6,15 @@ namespace NonStdQuery.Backend.Data.Translation
 {
     public class TypeTranslator
     {
-        private readonly List<string> _numericTypes = new List<string>
+        private readonly List<string> _integerTypes = new List<string>
         {
             "smallint",
             "bigint",
             "integer",
+        };
+
+        private readonly List<string> _doubleTypes = new List<string>
+        {
             "numeric",
             "real",
             "double precision"
@@ -32,20 +36,24 @@ namespace NonStdQuery.Backend.Data.Translation
         private readonly List<string> _stringTypes = new List<string>
         {
             "character varying",
-            "varchar",
-            "timestamp with time zone",
+            "varchar"
         };
 
         public DbType StringToType(string type)
         {
-            if (_numericTypes.Contains(type))
+            if (_integerTypes.Contains(type))
             {
-                return DbType.Numeric;
+                return DbType.Integer;
             }
 
             if (_boolTypes.Contains(type))
             {
                 return DbType.Bool;
+            }
+
+            if (_doubleTypes.Contains(type))
+            {
+                return DbType.Double;
             }
 
             if (_dateTimeTypes.Contains(type))

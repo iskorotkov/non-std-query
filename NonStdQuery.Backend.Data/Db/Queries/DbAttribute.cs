@@ -4,7 +4,7 @@
     {
         public string TableName { get; set; }
         public string ColumnName { get; set; }
-        public DbType Type { get; set; }
+        public Db.Queries.DbType Type { get; set; }
 
         public bool Equals(DbAttribute obj)
         {

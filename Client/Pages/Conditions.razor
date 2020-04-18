@@ -1,0 +1,168 @@
+﻿@page "/conditions"
+@using NonStdQuery.Client.Services
+@using NonStdQuery.Backend.Data.Queries
+@using NonStdQuery.Backend.Data.Db.Queries
+@using NonStdQuery.Backend.Representation.Validation
+@using NonStdQuery.Client.Data
+
+@inject FieldsRegistry FieldsRegistry
+@inject CurrentSelection CurrentSelection
+@inject QueryValidator Validator
+@inject TooltipsRegistry TooltipsRegistry
+
+@if (FieldsRegistry.Fields != null)
+{
+    <table>
+        <tbody>
+            @{
+                var errors = Validator.ValidateConditions(CurrentSelection.GetQuery());
+                var index = -1;
+            }
+
+            @foreach (var condition in CurrentSelection.GetQuery().Conditions
+                .Select(x => new ConditionWrapper(x)))
+            {
+                index++;
+                var cached = condition;
+                cached.ConditionsPage = this;
+                var attribute = FieldsRegistry.Fields
+                    .Find(f => f.Name == cached.Condition.AttributeName);
+                <tr>
+                    <td>
+                        <select @bind="@cached.Condition.AttributeName">
+                            @foreach (var field in FieldsRegistry.Fields)
+                            {
+                                <option value="@field.Name">@field.Name</option>
+                            }
+                        </select>
+                    </td>
+
+                    <td>
+                        <select @bind="@condition.Operation">
+                            <option value="@Operation.Equal">=</option>
+                            <option value="@Operation.NotEqual">!=</option>
+
+                            @if (attribute.Type != DbType.Bool)
+                            {
+                                <option value="@Operation.Less">&lt;</option>
+                                <option value="@Operation.More">&gt;</option>
+                                <option value="@Operation.LessEqual">&le;</option>
+                                <option value="@Operation.MoreEqual">&ge;</option>
+                            }
+                            
+                            @if (attribute.Type == DbType.String)
+                            {
+                                <option value="@Operation.Like">like</option>
+                                <option value="@Operation.ILike">case insensitive like</option>
+                                <option value="@Operation.NotLike">not like</option>
+                            }
+                        </select>
+                    </td>
+
+                    <td>
+                        @{
+                            var tooltipsList = $"tooltips{attribute.Name}";    
+                        }
+                        
+                        @switch (attribute.Type)
+                        {
+                            case DbType.Bool:
+                                <input type="checkbox" list="@tooltipsList"
+                                       @bind="@condition.BoolValue"/>
+                                break;
+                            case DbType.Integer:
+                                <input type="number" list="@tooltipsList"
+                                       @bind="@condition.IntValue"/>
+                                break;
+                            case DbType.String:
+                                <input type="text" list="@tooltipsList"
+                                       @bind="@condition.StringValue"/>
+                                break;
+                            case DbType.DateTime:
+                                <input type="date" list="@tooltipsList"
+                                       @bind="@condition.DateTimeValue"/>
+                                break;
+                            default:
+                                <span>Type isn't supported</span>
+                                break;
+                        }
+
+                        <datalist id="@tooltipsList">
+                            @{
+                                var tooltip = TooltipsRegistry.Tooltips
+                                    .Find(x => x.FieldName == cached.Condition.AttributeName);
+                                var tooltipItems = tooltip?.Items ?? new List<object>();
+                            }
+
+                            @foreach (var tooltipItem in tooltipItems)
+                            {
+                                <option value="@tooltipItem">@tooltipItem.ToString()</option>
+                            }
+                        </datalist>
+                    </td>
+
+                    <td>
+                        <select @bind="@condition.Condition.Link">
+                            <option value="@LinkMethod.None"></option>
+                            <option value="@LinkMethod.And">and</option>
+                            <option value="@LinkMethod.Or">or</option>
+                        </select>
+
+                    </td>
+
+                    <td>
+                        <button class="btn btn-outline-danger"
+                                @onclick="@(args => RemoveCondition(cached.Condition))">
+                            Remove
+                        </button>
+                    </td>
+
+                    <td>
+                        @{
+                            var error = errors.FirstOrDefault(x =>
+                                x.AttributeIndex == index);
+                            if (error != null)
+                            {
+                                <div class="text-danger">@error.Message</div>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="row">
+        <button class="btn btn-outline-success m-2" @onclick="@CreateCondition">Add condition</button>
+    </div>
+}
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await FieldsRegistry.Fetch();
+        await TooltipsRegistry.Fetch();
+    }
+
+    private void CreateCondition()
+    {
+        var attribute = FieldsRegistry.Fields.ElementAt(0);
+        var cond = new Condition
+        {
+            AttributeName = attribute.Name,
+            Operation = Operation.Equal
+        };
+        CurrentSelection.GetQuery().Conditions.Add(cond);
+    }
+
+    private void RemoveCondition(Condition condition)
+    {
+        CurrentSelection.GetQuery().Conditions.RemoveAll(x => ReferenceEquals(x, condition));
+    }
+
+    public void Refresh()
+    {
+        StateHasChanged();
+    }
+}

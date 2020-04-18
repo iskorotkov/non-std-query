@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Text;
+using NonStdQuery.Backend.Data.Db.Queries;
 using NonStdQuery.Backend.Data.Queries;
+using NonStdQuery.Backend.Data.Serialization;
 
 namespace NonStdQuery.Backend.Data.Translation
 {
@@ -10,6 +12,7 @@ namespace NonStdQuery.Backend.Data.Translation
         private readonly StringBuilder _builder;
         private readonly OperationTranslator _operationTranslator;
         private readonly LinkTranslator _linkTranslator;
+        private readonly ValueDeserializer _deserializer = new ValueDeserializer();
 
         public Dictionary<string, object> Parameters { get; }
         public int Index { get; private set; }
@@ -24,6 +27,14 @@ namespace NonStdQuery.Backend.Data.Translation
             Parameters = parameters ?? new Dictionary<string, object>();
         }
 
+        public void Translate(IEnumerable<Condition> conditions)
+        {
+            foreach (var condition in conditions)
+            {
+                Translate(condition);
+            }
+        }
+
         public void Translate(Condition condition)
         {
             var attribute = _attributeTranslator.FriendlyToReal(condition.AttributeName);
@@ -35,14 +46,15 @@ namespace NonStdQuery.Backend.Data.Translation
             _builder.Append("\"");
             
             _operationTranslator.Translate(condition.Operation);
-            TranslateConstant(condition);
+            TranslateConstant(condition.Value, attribute.Type);
             _linkTranslator.Translate(condition.Link);
         }
 
-        public void TranslateConstant(Condition condition)
+        private void TranslateConstant(object value, DbType type)
         {
             var name = "@" + Index++;
-            Parameters.Add(name, condition.Value);
+            var param = _deserializer.Deserialize(value, type);
+            Parameters.Add(name, param);
             _builder.Append(name);
         }
     }

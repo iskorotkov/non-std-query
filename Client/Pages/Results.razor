@@ -1,0 +1,123 @@
+﻿@page "/results"
+@using NonStdQuery.Client.Services
+@using NonStdQuery.Backend.Representation.Validation
+
+@inject CurrentSelection CurrentSelection
+@inject QueryValidator Validator
+
+@if (_errorMessage != null)
+{
+    <div class="text-danger m-2">@_errorMessage</div>
+}
+
+@{
+    var hasErrors = Validator.HasErrors(CurrentSelection.GetQuery());
+}
+
+@if (hasErrors)
+{
+    <div class="text-danger m-2">@_validationString</div>
+}
+
+@if (CurrentSelection.IsExecutionDirty && CurrentSelection?.ExecutionResult != null)
+{
+    <div class="text-warning m-2">Reexecute to get updated results.</div>
+}
+
+@if (!hasErrors)
+{
+    <button class="btn btn-primary m-2" @onclick="@Execute">Execute</button>
+}
+
+@if (CurrentSelection.ExecutionResult != null)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                @foreach (var title in CurrentSelection.ResultsHeader)
+                {
+                    <th>@title</th>
+                }
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var row in CurrentSelection.ExecutionResult.Data)
+            {
+                <tr>
+                    @foreach (var field in row)
+                    {
+                        <td>@field</td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (CurrentSelection.IsExplanationDirty && CurrentSelection?.ExplanationResult != null)
+{
+    <div class="text-warning m-2">Reexecute to get updated SQL.</div>
+}
+
+@if (!hasErrors)
+{
+    <button class="btn btn-outline-primary m-2" @onclick="@Explain">Explain</button>
+}
+
+@if (CurrentSelection.ExplanationResult != null)
+{
+    <div>
+        <div class="col-lg-6">
+            <fieldset class="border">
+                <legend class="text-center">SQL</legend>
+
+                <span style="white-space: pre-wrap">@CurrentSelection.ExplanationResult.Sql</span>
+            </fieldset>
+        </div>
+    </div>
+
+    <div>
+        <div class="col-lg-6">
+            <fieldset class="border">
+                <legend class="text-center">Pretty SQL</legend>
+
+                <span style="white-space: pre-wrap">@CurrentSelection.ExplanationResult.PrettySql</span>
+            </fieldset>
+        </div>
+    </div>
+}
+
+@code
+{
+    private string _validationString = "В запросе присутствуют ошибки.";
+    private string _errorMessage;
+
+    private async Task Execute()
+    {
+        try
+        {
+            await CurrentSelection.Execute();
+            _errorMessage = null;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            _errorMessage = "Произошла ошибка во время выполнения запроса.";
+        }
+    }
+
+    private async Task Explain()
+    {
+        try
+        {
+            await CurrentSelection.Explain();
+            _errorMessage = null;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            _errorMessage = "Произошла ошибка во время составления запроса.";
+        }
+    }
+}

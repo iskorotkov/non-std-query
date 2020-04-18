@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Dapper;
 using NonStdQuery.Backend.Data.Db;
@@ -19,17 +18,27 @@ namespace NonStdQuery.Backend.Data.JoinResolving
 
             var firstTable = tables[0];
             tables.RemoveAt(0);
-            return TryToJoin(firstTable, new List<string>(), tables);
+            return TryToJoin(firstTable, new List<string>(), tables)
+                .Distinct();
         }
 
         private IEnumerable<JoinInfo> TryToJoin(string table, List<string> traversed,
             List<string> tablesToJoin)
         {
+            if (traversed.Contains(table))
+            {
+                yield break;
+            }
             traversed.Add(table);
 
             var joins = GetJoinsForTable(table).ToList();
             foreach (var @join in joins)
             {
+                if (tablesToJoin.Count == 0)
+                {
+                    yield break;
+                }
+                
                 if (traversed.Contains(@join.ForeignTable))
                 {
                     continue;
@@ -40,15 +49,15 @@ namespace NonStdQuery.Backend.Data.JoinResolving
                     tablesToJoin.Remove(join.ForeignTable);
                     yield return join;
                 }
-
-                if (tablesToJoin.Count == 0)
-                {
-                    yield break;
-                }
             }
 
             foreach (var @join in joins)
             {
+                if (tablesToJoin.Count == 0)
+                {
+                    yield break;
+                }
+                
                 if (traversed.Contains(@join.ForeignTable))
                 {
                     continue;
@@ -57,18 +66,12 @@ namespace NonStdQuery.Backend.Data.JoinResolving
                 var recursiveJoins = TryToJoin(join.ForeignTable, traversed, tablesToJoin).ToList();
                 if (recursiveJoins.Count > 0)
                 {
-                    traversed.Add(join.ForeignTable);
                     tablesToJoin.Remove(join.ForeignTable);
                     yield return join;
                     foreach (var recursiveJoin in recursiveJoins)
                     {
                         yield return recursiveJoin;
                     }
-                }
-
-                if (tablesToJoin.Count == 0)
-                {
-                    yield break;
                 }
             }
         }

@@ -12,7 +12,7 @@ namespace NonStdQuery.Backend.Data.Tests
         {
             var translator = new TypeTranslator();
             
-            Assert.Equal(DbType.Numeric, translator.StringToType("integer"));
+            Assert.Equal(DbType.Integer, translator.StringToType("integer"));
             Assert.Equal(DbType.Bool, translator.StringToType("boolean"));
             Assert.Equal(DbType.String, translator.StringToType("varchar"));
             Assert.Equal(DbType.DateTime, translator.StringToType("timestamp"));

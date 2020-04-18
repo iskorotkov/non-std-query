@@ -1,0 +1,87 @@
+﻿@page "/order"
+@using NonStdQuery.Client.Services
+@using NonStdQuery.Backend.Data.Queries
+@using NonStdQuery.Backend.Representation.Validation
+
+@inject CurrentSelection CurrentSelection
+@inject FieldsRegistry FieldsRegistry
+@inject QueryValidator Validator
+
+@if (FieldsRegistry.Fields != null)
+{
+    <table>
+        <tbody>
+            @{
+                var errors = Validator.ValidateSort(CurrentSelection.GetQuery());
+                var index = -1;
+            }
+
+            @foreach (var attribute in CurrentSelection.GetQuery().SortAttributes)
+            {
+                index++;
+                var cached = attribute;
+                <tr>
+                    <td>
+                        <select @bind="@cached.AttributeName">
+                            @foreach (var field in FieldsRegistry.Fields)
+                            {
+                                <option value="@field.Name">@field.Name</option>
+                            }
+                        </select>
+                    </td>
+
+                    <td>
+                        <select @bind="@cached.Direction">
+                            <option value="@SortDirection.Ascending">Ascending</option>
+                            <option value="@SortDirection.Descending">Descending</option>
+                        </select>
+                    </td>
+
+                    <td>
+                        <button class="btn btn-outline-danger"
+                                @onclick="@(args => RemoveAttribute(cached))">
+                            Remove
+                        </button>
+                    </td>
+
+                    <td>
+                        @{
+                            var error = errors.FirstOrDefault(x => x.AttributeIndex == index);
+                            if (error != null)
+                            {
+                                <div class="text-danger">@error.Message</div>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <button class="btn btn-outline-success m-2"
+            @onclick="@AddAttribute">
+        Add attribute
+    </button>
+}
+
+@code
+{
+    protected override async Task OnInitializedAsync()
+    {
+        await FieldsRegistry.Fetch();
+    }
+
+    private void RemoveAttribute(SortAttribute cached)
+    {
+        CurrentSelection.GetQuery().SortAttributes.RemoveAll(x => ReferenceEquals(x, cached));
+    }
+
+    private void AddAttribute()
+    {
+        var attribute = new SortAttribute
+        {
+            AttributeName = FieldsRegistry?.Fields?.ElementAt(0)?.Name ?? ""
+        };
+        CurrentSelection.GetQuery().SortAttributes.Add(attribute);
+    }
+}
