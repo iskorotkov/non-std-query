@@ -29,7 +29,7 @@ namespace NonStdQuery.Backend.Data.Tests
             {
                 TableName = "empires",
                 ColumnName = "power",
-                Type = DbType.Numeric
+                Type = DbType.Integer
             };
             
             Assert.Equal("Мощь империи", translator.RealToFriendly(attribute));
