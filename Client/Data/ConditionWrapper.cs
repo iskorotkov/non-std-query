@@ -92,5 +92,21 @@ namespace NonStdQuery.Client.Data
             }
             set => Condition.Value = value;
         }
+
+        public double DoubleValue
+        {
+            get
+            {
+                if (Condition.Value is double x)
+                {
+                    return x;
+                }
+
+                Operation = Operation.Equal;
+                Condition.Value = 0.0;
+                return 0.0;
+            }
+            set => Condition.Value = value;
+        }
     }
 }
