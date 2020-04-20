@@ -9,7 +9,8 @@
         LessEqual,
         MoreEqual,
         Like,
-        ILike,
-        NotLike
+        InsensitiveLike,
+        NotLike,
+        NotInsensitiveLike
     }
 }

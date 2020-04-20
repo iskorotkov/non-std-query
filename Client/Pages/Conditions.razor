@@ -53,8 +53,9 @@
                             @if (attribute.Type == DbType.String)
                             {
                                 <option value="@Operation.Like">like</option>
-                                <option value="@Operation.ILike">case insensitive like</option>
+                                <option value="@Operation.InsensitiveLike">case insensitive like</option>
                                 <option value="@Operation.NotLike">not like</option>
+                                <option value="@Operation.NotInsensitiveLike">case insensitive not like</option>
                             }
                         </select>
                     </td>
