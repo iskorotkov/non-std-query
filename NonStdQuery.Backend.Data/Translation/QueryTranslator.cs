@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NonStdQuery.Backend.Data.Db.Queries;
+using NonStdQuery.Backend.Data.Factories;
 using NonStdQuery.Backend.Data.JoinResolving;
 using NonStdQuery.Backend.Data.Queries;
 
@@ -10,6 +11,18 @@ namespace NonStdQuery.Backend.Data.Translation
 {
     public class QueryTranslator
     {
+        private readonly ConditionTranslatorFactory _conditionTranslatorFactory;
+
+        public QueryTranslator()
+        {
+            _conditionTranslatorFactory = new ConditionTranslatorFactory();
+        }
+
+        public QueryTranslator(ConditionTranslatorFactory conditionTranslatorFactory)
+        {
+            _conditionTranslatorFactory = conditionTranslatorFactory;
+        }
+
         public DbQuery Translate(Query query)
         {
             if (query.SelectAttributes.Count == 0)
@@ -32,7 +45,7 @@ namespace NonStdQuery.Backend.Data.Translation
             {
                 builder.Append("\nwhere");
 
-                var conditionTranslator = new ConditionTranslator(builder);
+                var conditionTranslator = _conditionTranslatorFactory.Create(builder);
                 conditionTranslator.Translate(query.Conditions);
 
                 parameters = conditionTranslator.Parameters;

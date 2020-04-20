@@ -46,11 +46,11 @@ namespace NonStdQuery.Backend.Data.Translation
             _builder.Append("\"");
             
             _operationTranslator.Translate(condition.Operation);
-            TranslateConstant(condition.Value, attribute.Type);
+            TranslateConstant(_builder, condition.Value, attribute.Type);
             _linkTranslator.Translate(condition.Link);
         }
 
-        private void TranslateConstant(object value, DbType type)
+        protected virtual void TranslateConstant(StringBuilder builder, object value, DbType type)
         {
             var name = "@" + Index++;
             var param = _deserializer.Deserialize(value, type);
