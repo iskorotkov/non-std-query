@@ -1,9 +1,11 @@
 ﻿@page "/results"
 @using NonStdQuery.Client.Services
 @using NonStdQuery.Backend.Representation.Validation
+@using NonStdQuery.Backend.Data.Db.Queries
 
 @inject CurrentSelection CurrentSelection
 @inject QueryValidator Validator
+@inject FieldsRegistry FieldsRegistry
 
 @if (_errorMessage != null)
 {
@@ -45,9 +47,20 @@
             @foreach (var row in CurrentSelection.ExecutionResult.Data)
             {
                 <tr>
-                    @foreach (var field in row)
+                    @for (var index = 0; index < row.Count; index++)
                     {
-                        <td>@field</td>
+                        var field = row[index];
+                        var fieldName = CurrentSelection.ResultsHeader[index];
+                        var fieldInfo = FieldsRegistry.Fields.FirstOrDefault(x => x.Name == fieldName);
+                        if (fieldInfo?.Type == DbType.Date)
+                        {
+                            var date = DateTime.Parse(field);
+                            <td>@date.ToShortDateString()</td>
+                        }
+                        else
+                        {
+                            <td>@field</td>
+                        }
                     }
                 </tr>
             }
@@ -92,6 +105,11 @@
 {
     private string _validationString = "В запросе присутствуют ошибки.";
     private string _errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FieldsRegistry.Fetch();
+    }
 
     private async Task Execute()
     {

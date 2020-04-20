@@ -18,7 +18,7 @@ namespace NonStdQuery.Backend.Data.Translation
                 case DbType.String:
                     builder.Append($"'{value}'");
                     break;
-                case DbType.DateTime:
+                case DbType.Date:
                     builder.Append("{ " + value + " }");
                     break;
                 default:

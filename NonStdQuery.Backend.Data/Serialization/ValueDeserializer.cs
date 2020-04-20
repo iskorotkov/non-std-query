@@ -15,7 +15,7 @@ namespace NonStdQuery.Backend.Data.Serialization
                     DbType.Integer => x.GetInt64(),
                     DbType.String => x.GetString(),
                     DbType.Double => x.GetDouble(),
-                    DbType.DateTime => x.GetDateTime(),
+                    DbType.Date => x.GetDateTime(),
                     DbType.Bool => x.GetBoolean(),
                     _ => throw new ArgumentException()
                 };

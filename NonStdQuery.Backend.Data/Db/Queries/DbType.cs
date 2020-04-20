@@ -6,7 +6,7 @@
         Integer,
         Double,
         String,
-        DateTime,
+        Date,
         Bool
     }
 }

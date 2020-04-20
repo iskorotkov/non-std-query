@@ -85,7 +85,7 @@ namespace NonStdQuery.Backend.Representation.Managers
                                                 from {tableName}
                                                 where {fieldName} is not null;");
                     return s.Select(x => (object) x);
-                case DbType.DateTime:
+                case DbType.Date:
                     var dt = await subjectConnection.QueryAsync<DateTime>($@"
                                                     select distinct {fieldName}
                                                     from {tableName}

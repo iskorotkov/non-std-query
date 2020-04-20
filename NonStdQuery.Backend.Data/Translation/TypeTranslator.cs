@@ -27,10 +27,7 @@ namespace NonStdQuery.Backend.Data.Translation
 
         private readonly List<string> _dateTimeTypes = new List<string>
         {
-            "date",
-            "time",
-            "timestamp",
-            "timestamp with time zone",
+            "date"
         };
 
         private readonly List<string> _stringTypes = new List<string>
@@ -38,6 +35,9 @@ namespace NonStdQuery.Backend.Data.Translation
             "character varying",
             "varchar"
         };
+
+        // TODO: Add time and datetime types
+        // "time", "timestamp", "timestamp with time zone", ...
 
         public DbType StringToType(string type)
         {
@@ -58,7 +58,7 @@ namespace NonStdQuery.Backend.Data.Translation
 
             if (_dateTimeTypes.Contains(type))
             {
-                return DbType.DateTime;
+                return DbType.Date;
             }
 
             if (_stringTypes.Contains(type))
