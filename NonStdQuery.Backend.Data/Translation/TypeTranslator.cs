@@ -15,9 +15,13 @@ namespace NonStdQuery.Backend.Data.Translation
 
         private readonly List<string> _doubleTypes = new List<string>
         {
-            "numeric",
             "real",
             "double precision"
+        };
+
+        private readonly List<string> _decimalTypes = new List<string>
+        {
+            "numeric"
         };
 
         private readonly List<string> _boolTypes = new List<string>
@@ -49,6 +53,11 @@ namespace NonStdQuery.Backend.Data.Translation
             if (_boolTypes.Contains(type))
             {
                 return DbType.Bool;
+            }
+
+            if (_decimalTypes.Contains(type))
+            {
+                return DbType.Decimal;
             }
 
             if (_doubleTypes.Contains(type))

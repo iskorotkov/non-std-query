@@ -87,6 +87,10 @@
                                 <input type="date" list="@tooltipsList"
                                        @bind="@condition.DateTimeValue"/>
                                 break;
+                            case DbType.Decimal:
+                                <input type="number" list="@tooltipsList"
+                                       @bind="@condition.DecimalValue"/>
+                                break;
                             default:
                                 <span>Type isn't supported</span>
                                 break;

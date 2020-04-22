@@ -103,6 +103,12 @@ namespace NonStdQuery.Backend.Representation.Managers
                                                from {tableName}
                                                where {fieldName} is not null;");
                     return b.Select(x => (object) x);
+                case DbType.Decimal:
+                    var dec = await subjectConnection.QueryAsync<decimal>($@"
+                                               select distinct {fieldName}
+                                               from {tableName}
+                                               where {fieldName} is not null;");
+                    return dec.Select(x => (object) x);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(translatedType), translatedType, null);
             }

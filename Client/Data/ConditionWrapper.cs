@@ -29,6 +29,22 @@ namespace NonStdQuery.Client.Data
             }
         }
 
+        public decimal DecimalValue
+        {
+            get
+            {
+                if (Condition.Value is decimal x)
+                {
+                    return x;
+                }
+
+                Operation = Operation.Equal;
+                Condition.Value = 0m;
+                return 0m;
+            }
+            set => Condition.Value = value;
+        }
+
         public int IntValue
         {
             get

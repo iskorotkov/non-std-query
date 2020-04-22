@@ -17,6 +17,7 @@ namespace NonStdQuery.Backend.Data.Serialization
                     DbType.Double => x.GetDouble(),
                     DbType.Date => x.GetDateTime(),
                     DbType.Bool => x.GetBoolean(),
+                    DbType.Decimal => x.GetDecimal(),
                     _ => throw new ArgumentException()
                 };
             }

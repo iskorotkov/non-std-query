@@ -7,6 +7,7 @@
         Double,
         String,
         Date,
+        Decimal,
         Bool
     }
 }
